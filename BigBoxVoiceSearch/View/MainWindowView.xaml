@@ -17,19 +17,11 @@
     <Canvas Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
             Width="{Binding ActualWidth, ElementName=MainWindowUserControl}"
             Height="{Binding ActualHeight, ElementName=MainWindowUserControl}"
-            Visibility="{Binding IsRecognizing, Converter={StaticResource BoolToVis}}">
+            Visibility="{Binding UserControlVisibility}">
         <Grid Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"                       
               Width="{Binding ActualWidth, ElementName=MainWindowUserControl}"
               Height="{Binding ActualHeight, ElementName=MainWindowUserControl}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Image Grid.Row="2" Grid.RowSpan="1"
-                   RenderOptions.BitmapScalingMode="HighQuality" 
+            <Image RenderOptions.BitmapScalingMode="HighQuality" 
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch" 
                    Stretch="Uniform" 

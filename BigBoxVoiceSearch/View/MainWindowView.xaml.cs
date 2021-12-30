@@ -1,5 +1,6 @@
-﻿using System.Windows.Controls;
-using BigBoxVoiceSearch.DataAccess;
+﻿using System.Windows;
+using System.Windows.Controls;
+using BigBoxVoiceSearch.Models;
 using BigBoxVoiceSearch.ViewModel;
 using Unbroken.LaunchBox.Plugins;
 using Unbroken.LaunchBox.Plugins.Data;
@@ -9,6 +10,38 @@ namespace BigBoxVoiceSearch.View
     public partial class MainWindowView : UserControl, IBigBoxThemeElementPlugin
     {
         private readonly MainWindowViewModel mainWindowViewModel;
+
+        public static readonly DependencyProperty VisibilityModeProperty = 
+            DependencyProperty.Register("VisibilityMode", typeof(string), typeof(MainWindowView), new PropertyMetadata(BigBoxVoiceSearchVisibilityMode.Never));
+
+        public string VisibilityMode
+        {
+            get { return (string)GetValue(VisibilityModeProperty); }
+            set
+            {
+                SetValue(VisibilityModeProperty, value);
+
+                // set the visibility mode in the view model 
+                InitializeMainWindowViewModelVisibilityMode();
+            }
+        }
+
+        public static readonly DependencyProperty ActivationModeProperty =
+            DependencyProperty.Register("ActivationMode", typeof(string), typeof(MainWindowView), new PropertyMetadata(BigBoxVoiceSearchActivationMode.Off));
+
+
+        public string ActivationMode
+        {
+            get { return (string)GetValue(ActivationModeProperty); }
+            set
+            {
+                SetValue(ActivationModeProperty, value);
+
+                // set the activation mode in the view model 
+                InitializeMainWindowViewModelActivationMode();
+            }
+        }
+
 
         public MainWindowView()
         {
@@ -20,59 +53,71 @@ namespace BigBoxVoiceSearch.View
             Loaded += MainWindowView_Loaded;
         }
 
-        private async void MainWindowView_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        private async void MainWindowView_Loaded(object sender, RoutedEventArgs e)
         {
             await mainWindowViewModel.Initialize();
+
+            // set the activation mode in the view model 
+            InitializeMainWindowViewModelActivationMode();
+
+            // set the visibility mode in the view model 
+            InitializeMainWindowViewModelVisibilityMode();
+        }
+
+        private void InitializeMainWindowViewModelActivationMode()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.ActivationMode = ActivationMode;
+            }
+        }
+
+        private void InitializeMainWindowViewModelVisibilityMode()
+        {
+            if(mainWindowViewModel != null)
+            {
+                mainWindowViewModel.VisibilityMode = VisibilityMode;
+            }
         }
 
         public bool OnDown(bool held)
         {
-            return false;
+            return mainWindowViewModel.DoDown(held);
         }
 
         public bool OnEnter()
         {
-            return false;
+            return mainWindowViewModel.DoEnter();
         }
 
         public bool OnEscape()
         {
-            return false;
+            return mainWindowViewModel.DoEscape();
         }
 
         public bool OnLeft(bool held)
         {
-            return false;
+            return mainWindowViewModel.DoLeft(held);
         }
 
         public bool OnPageDown()
         {
-            if (BigBoxVoiceSearchSettingsDataProvider.Instance.BigBoxVoiceSearchSettings.SearchOnPageDown)
-            {
-                mainWindowViewModel.DoVoiceSearch();
-                return true;
-            }
-            return false;
+            return mainWindowViewModel.DoPageDown();
         }
 
         public bool OnPageUp()
         {
-            if (BigBoxVoiceSearchSettingsDataProvider.Instance.BigBoxVoiceSearchSettings.SearchOnPageUp)
-            {
-                mainWindowViewModel.DoVoiceSearch();
-                return true;
-            }
-            return false;
+            return mainWindowViewModel.DoPageUp();
         }
 
         public bool OnRight(bool held)
         {
-            return false;
+            return mainWindowViewModel.DoRight(held);
         }
 
         public bool OnUp(bool held)
         {
-            return false;
+            return mainWindowViewModel.DoUp(held);
         }
 
         public void OnSelectionChanged(FilterType filterType, string filterValue, IPlatform platform, IPlatformCategory category, IPlaylist playlist, IGame game)
