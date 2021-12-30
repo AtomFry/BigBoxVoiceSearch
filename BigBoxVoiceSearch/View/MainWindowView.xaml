@@ -12,13 +12,10 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
 
-
-
     <Canvas Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
             Width="{Binding ActualWidth, ElementName=MainWindowUserControl}"
             Height="{Binding ActualHeight, ElementName=MainWindowUserControl}"
             Visibility="{Binding IsRecognizing, Converter={StaticResource BoolToVis}}">
-
         <Grid Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"                       
               Width="{Binding ActualWidth, ElementName=MainWindowUserControl}"
               Height="{Binding ActualHeight, ElementName=MainWindowUserControl}">

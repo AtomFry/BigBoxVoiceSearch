@@ -1,42 +1,27 @@
-﻿using BigBoxVoiceSearch.Helpers;
+﻿using BigBoxVoiceSearch.DataAccess;
+using BigBoxVoiceSearch.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Speech.Recognition;
-using System.Text;
 using System.Threading.Tasks;
-using Unbroken.LaunchBox.Plugins;
-using Unbroken.LaunchBox.Plugins.Data;
 
 namespace BigBoxVoiceSearch.VoiceSearch
 {
-    public class RecognizedPhrase
-    {
-        public string Phrase { get; set; }
-        public float Confidence { get; set; }
-    }
-
-    public class SpeechRecognizerResult
-    {
-        public List<RecognizedPhrase> RecognizedPhrases { get; set; } = new List<RecognizedPhrase>();
-        public string ErrorMessage { get; set; }
-    }
-
     public delegate void RecognitionCompletedDelegate(SpeechRecognizerResult speechRecognizerResult);
 
     public class VoiceSearcher
     {
-        private RecognitionCompletedDelegate recognitionCompletedDelegate;
+        private readonly RecognitionCompletedDelegate recognitionCompletedDelegate;
         private SpeechRecognitionEngine recognizer;
         private SpeechRecognizerResult speechRecognizerResult;
-        
+
         public bool IsInitialized { get; private set; }
-        public string RecognitionStatusMessage { get; private set; }
 
         public VoiceSearcher(RecognitionCompletedDelegate _recognitionCompletedDelegate)
         {
             IsInitialized = false;
-            recognitionCompletedDelegate = _recognitionCompletedDelegate;
+            recognitionCompletedDelegate = _recognitionCompletedDelegate ?? throw new ArgumentNullException(nameof(_recognitionCompletedDelegate));
         }
 
         public async Task<bool> Initialize()
@@ -45,45 +30,7 @@ namespace BigBoxVoiceSearch.VoiceSearch
             {
                 return await Task.Run(() =>
                 {
-                    IGame[] games = PluginHelper.DataManager.GetAllGames();
-
-                    List<string> gameTitlePhrases = new List<string>();
-                    
-                    foreach(IGame game in games)
-                    {
-                        GameTitleGrammarBuilder gameTitleGrammarBuilder = new GameTitleGrammarBuilder(game);
-                        
-                        foreach(GameTitleGrammar gameTitleGrammar in gameTitleGrammarBuilder.gameTitleGrammars)
-                        {
-                            if(!string.IsNullOrWhiteSpace(gameTitleGrammar.Title))
-                            {
-                                gameTitlePhrases.Add(gameTitleGrammar.Title);
-                            }
-
-                            if(!string.IsNullOrWhiteSpace(gameTitleGrammar.MainTitle))
-                            {
-                                gameTitlePhrases.Add(gameTitleGrammar.MainTitle);
-                            }
-
-                            if(!string.IsNullOrWhiteSpace(gameTitleGrammar.Subtitle))
-                            {
-                                gameTitlePhrases.Add(gameTitleGrammar.Subtitle);
-                            }
-
-                            for (int i = 0; i < gameTitleGrammar.TitleWords.Count; i++)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                for (int j = i; j < gameTitleGrammar.TitleWords.Count; j++)
-                                {
-                                    sb.Append($"{gameTitleGrammar.TitleWords[j]} ");
-                                    if (!GameTitleGrammar.IsNoiseWord(sb.ToString().Trim()))
-                                    {
-                                        gameTitlePhrases.Add(sb.ToString().Trim());
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    List<string> gameTitlePhrases = GameTitleGrammarBuilder.GetGameTitleGrammar();
 
                     Choices choices = new Choices();
                     choices.Add(gameTitlePhrases.Distinct().ToArray());
@@ -93,10 +40,10 @@ namespace BigBoxVoiceSearch.VoiceSearch
 
                     Grammar grammar = new Grammar(grammarBuilder) { Name = "Game title elements" };
 
-                    recognizer = new SpeechRecognitionEngine();
-
-                    // todo: read from the settings file 
-                    recognizer.InitialSilenceTimeout = TimeSpan.FromSeconds(5.0);
+                    recognizer = new SpeechRecognitionEngine
+                    {
+                        InitialSilenceTimeout = TimeSpan.FromSeconds(BigBoxVoiceSearchSettingsDataProvider.Instance.BigBoxVoiceSearchSettings.VoiceSearchTimeoutInSeconds)
+                    };
                     recognizer.RecognizeCompleted += Recognizer_RecognizeCompleted;
                     recognizer.LoadGrammarAsync(grammar);
                     recognizer.SpeechHypothesized += Recognizer_SpeechHypothesized;
@@ -115,6 +62,7 @@ namespace BigBoxVoiceSearch.VoiceSearch
 
             return false;
         }
+
 
         private void Recognizer_SpeechHypothesized(object sender, SpeechHypothesizedEventArgs e)
         {
@@ -155,10 +103,6 @@ namespace BigBoxVoiceSearch.VoiceSearch
             recognitionCompletedDelegate(speechRecognizerResult);
         }
 
-        /// <summary>
-        /// Performs a voice search
-        /// </summary>
-        /// <returns>Indicates whether the search was successfully performed</returns>
         public void DoVoiceSearch()
         {
             if (!IsInitialized)

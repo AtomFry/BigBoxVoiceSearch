@@ -7,7 +7,7 @@ namespace BigBoxVoiceSearch.DataAccess
 {
     public class BigBoxVoiceSearchDataService
     {
-        private string StorageFile = DirectoryInfoHelper.Instance.SettingsFile;
+        private readonly string StorageFile = DirectoryInfoHelper.Instance.SettingsFile;
 
         public static BigBoxVoiceSearchSettings GetSettings()
         {
@@ -24,8 +24,9 @@ namespace BigBoxVoiceSearch.DataAccess
 
                 BigBoxVoiceSearchSettings bigBoxVoiceSearchSettings = new BigBoxVoiceSearchSettings()
                 {
-                    searchOnPageDown = true,
-                    searchOnPageUp = false
+                    SearchOnPageDown = false,
+                    SearchOnPageUp = true, 
+                    VoiceSearchTimeoutInSeconds = 5
                 };
 
                 // save the file 
@@ -46,15 +47,7 @@ namespace BigBoxVoiceSearch.DataAccess
         }
 
         #region singleton implementation 
-        public static BigBoxVoiceSearchDataService Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
-
-        private static readonly BigBoxVoiceSearchDataService instance = new BigBoxVoiceSearchDataService();
+        public static BigBoxVoiceSearchDataService Instance { get; } = new BigBoxVoiceSearchDataService();
 
         static BigBoxVoiceSearchDataService()
         {
