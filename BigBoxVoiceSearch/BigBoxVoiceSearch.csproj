@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <Folder Include="Dependencies\" />
-    <Folder Include="Deploy\LaunchBox\Plugins\" />
+    <Folder Include="Deploy\LaunchBox\Plugins\BigBoxVoiceSearch\" />
   </ItemGroup>
 
   <ItemGroup>

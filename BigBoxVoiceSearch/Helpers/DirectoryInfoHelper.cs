@@ -34,6 +34,32 @@ namespace BigBoxVoiceSearch.Helpers
             }
         }
 
+        private string mediaFolder;
+        public string MediaFolder
+        {
+            get
+            {
+                if(string.IsNullOrWhiteSpace(mediaFolder))
+                {
+                    mediaFolder = $"{PluginFolder}\\Media";
+                }
+                return mediaFolder;
+            }
+        }
+
+        private string customGifPath;
+        public string CustomGifPath
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(customGifPath))
+                {
+                    customGifPath = $"{MediaFolder}\\VoiceRecognitionGif.gif";
+                }
+                return customGifPath;
+            }
+        }
+
         private string logFile;
         public string LogFile
         {
