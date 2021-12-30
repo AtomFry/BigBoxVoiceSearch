@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="EmbeddedResources\InitializingFailedIcon.png" />
+    <None Remove="EmbeddedResources\InitializingIcon.png" />
+    <None Remove="EmbeddedResources\ReadyIcon.png" />
+    <None Remove="EmbeddedResources\RecognizingFailedIcon.png" />
+    <None Remove="EmbeddedResources\RecognizingIcon.png" />
+    <None Remove="EmbeddedResources\VoiceRecognitionGif.gif" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dependencies\" />
+    <Folder Include="Deploy\LaunchBox\Plugins\BigBoxVoiceSearch\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Speech">
+      <HintPath>Dependencies\System.Speech.dll</HintPath>
+    </Reference>
+    <Reference Include="Unbroken.LaunchBox.Plugins">
+      <HintPath>Dependencies\Unbroken.LaunchBox.Plugins.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="EmbeddedResources\InitializingFailedIcon.png" />
+    <Resource Include="EmbeddedResources\InitializingIcon.png" />
+    <Resource Include="EmbeddedResources\ReadyIcon.png" />
+    <Resource Include="EmbeddedResources\RecognizingFailedIcon.png" />
+    <Resource Include="EmbeddedResources\RecognizingIcon.png" />
+    <Resource Include="EmbeddedResources\VoiceRecognitionGif.gif" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(TargetDir)BigBoxVoiceSearch.dll&quot; &quot;C:\Users\Adam\Documents\LaunchBox\Plugins&quot; /K /D /H /Y&#xD;&#xA;xcopy &quot;$(TargetDir)BigBoxVoiceSearch.pdb&quot; &quot;C:\Users\Adam\Documents\LaunchBox\Plugins&quot; /K /D /H /Y" />
+  </Target>
+
+</Project>
