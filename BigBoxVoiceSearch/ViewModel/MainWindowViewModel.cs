@@ -51,17 +51,6 @@ namespace BigBoxVoiceSearch.ViewModel
             }
         }
 
-        private Uri recognizingAnimatedGif;
-        public Uri RecognizingAnimatedGif
-        {
-            get { return recognizingAnimatedGif; }
-            set
-            {
-                recognizingAnimatedGif = value;
-                OnPropertyChanged("RecognizingAnimatedGif");
-            }
-        }
-
         private string activationMode;
         public string ActivationMode
         {
@@ -148,11 +137,6 @@ namespace BigBoxVoiceSearch.ViewModel
             if (File.Exists(DirectoryInfoHelper.Instance.RecognizingImagePath))
             {
                 recognizingImage = new Uri(DirectoryInfoHelper.Instance.RecognizingImagePath);
-            }
-
-            if (File.Exists(DirectoryInfoHelper.Instance.RecognizingAnimatedGifPath))
-            {
-                RecognizingAnimatedGif = new Uri(DirectoryInfoHelper.Instance.RecognizingAnimatedGifPath);
             }
 
             ForegroundImage = inactiveImage;

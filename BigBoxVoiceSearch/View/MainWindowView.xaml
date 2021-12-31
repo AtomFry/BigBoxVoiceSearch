@@ -10,10 +10,6 @@
              mc:Ignorable="d" 
              Name="MainWindowUserControl"
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-    </UserControl.Resources>
-
     <Canvas Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
             Width="{Binding ActualWidth, ElementName=MainWindowUserControl}"
             Height="{Binding ActualHeight, ElementName=MainWindowUserControl}"
@@ -32,28 +28,6 @@
                    VerticalAlignment="Stretch" 
                    Stretch="Uniform"                    
                    Source="{Binding ForegroundImage}">
-                <Image.OpacityMask>
-                    <RadialGradientBrush Center="0.5,0.5">
-                        <GradientStop Offset="0" Color="Black"/>
-                        <GradientStop Offset="0.85" Color="Black"/>
-                        <GradientStop Offset="1.00" Color="Transparent"/>
-                    </RadialGradientBrush>
-                </Image.OpacityMask>                
-            </Image>            
-            <Image RenderOptions.BitmapScalingMode="HighQuality" 
-                   HorizontalAlignment="Stretch" 
-                   VerticalAlignment="Stretch" 
-                   Stretch="Uniform" 
-                   Grid.Row="0"
-                   Visibility="{Binding IsRecognizing, Converter={StaticResource BoolToVis}}"
-                   gif:ImageBehavior.AnimatedSource="{Binding RecognizingAnimatedGif}">
-                <Image.OpacityMask>
-                    <RadialGradientBrush Center="0.5,0.5">
-                        <GradientStop Offset="0" Color="Black"/>
-                        <GradientStop Offset="0.85" Color="Black"/>
-                        <GradientStop Offset="1.00" Color="Transparent"/>
-                    </RadialGradientBrush>
-                </Image.OpacityMask>
             </Image>
         </Grid>
     </Canvas>

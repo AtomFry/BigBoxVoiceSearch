@@ -47,19 +47,6 @@ namespace BigBoxVoiceSearch.Helpers
             }
         }
 
-        private string recognizingAnimatedGifPath;
-        public string RecognizingAnimatedGifPath
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(recognizingAnimatedGifPath))
-                {
-                    recognizingAnimatedGifPath = $"{MediaFolder}\\RecognizingAnimatedGif.gif";
-                }
-                return recognizingAnimatedGifPath;
-            }
-        }
-
         private string recognizingImagePath;
         public string RecognizingImagePath
         {

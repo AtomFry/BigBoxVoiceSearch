@@ -33,7 +33,7 @@ namespace BigBoxVoiceSearch.VoiceSearch
                     List<string> gameTitlePhrases = GameTitleGrammarBuilder.GetGameTitleGrammar();
 
                     Choices choices = new Choices();
-                    choices.Add(gameTitlePhrases.Distinct().ToArray());
+                    choices.Add(gameTitlePhrases.Distinct().ToArray());                    
 
                     GrammarBuilder grammarBuilder = new GrammarBuilder();
                     grammarBuilder.Append(choices);
