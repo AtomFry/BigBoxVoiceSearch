@@ -24,8 +24,6 @@ namespace BigBoxVoiceSearch.DataAccess
 
                 BigBoxVoiceSearchSettings bigBoxVoiceSearchSettings = new BigBoxVoiceSearchSettings()
                 {
-                    SearchOnPageDown = false,
-                    SearchOnPageUp = true, 
                     VoiceSearchTimeoutInSeconds = 5
                 };
 
