@@ -19,16 +19,91 @@ namespace BigBoxVoiceSearch.ViewModel
         private Visibility userControlVisibility;
         private string visibilityMode;
 
+        private bool activateOnUp, activateOnDown, activateOnLeft, activateOnRight, activateOnPageUp, activateOnPageDown;
+        private bool deactivateOnUp, deactivateOnDown, deactivateOnLeft, deactivateOnRight;
 
-        public string ActivationMode { get; set; }
+        private Uri inactiveBackgroundImage;
+        private Uri activeBackgroundImage;
+        private Uri recognizingBackgroundImage;
+        private Uri inactiveImage;
+        private Uri activeImage;
+        private Uri recognizingImage;
+
+        private Uri foregroundImage;
+        public Uri ForegroundImage
+        {
+            get { return foregroundImage; }
+            set
+            {
+                foregroundImage = value;
+                OnPropertyChanged("ForegroundImage");
+            }
+        }
+
+        private Uri backgroundImage;
+        public Uri BackgroundImage
+        {
+            get { return backgroundImage; }
+            set
+            {
+                backgroundImage = value;
+                OnPropertyChanged("BackgroundImage");
+            }
+        }
+
+        private Uri recognizingAnimatedGif;
+        public Uri RecognizingAnimatedGif
+        {
+            get { return recognizingAnimatedGif; }
+            set
+            {
+                recognizingAnimatedGif = value;
+                OnPropertyChanged("RecognizingAnimatedGif");
+            }
+        }
+
+        private string activationMode;
+        public string ActivationMode
+        {
+            get { return activationMode; }
+            set
+            {
+                if (activationMode != value)
+                {
+                    InitializeActivation(value);
+                }
+
+                activationMode = value;
+            }
+        }
+
+        private void InitializeActivation(string _activationMode)
+        {
+            activateOnUp = _activationMode == BigBoxVoiceSearchActivationMode.Up;
+            activateOnDown = _activationMode == BigBoxVoiceSearchActivationMode.Down;
+            activateOnLeft = _activationMode == BigBoxVoiceSearchActivationMode.Left;
+            activateOnRight = _activationMode == BigBoxVoiceSearchActivationMode.Right;
+            activateOnPageUp = _activationMode == BigBoxVoiceSearchActivationMode.PageUp;
+            activateOnPageDown = _activationMode == BigBoxVoiceSearchActivationMode.PageDown;
+
+            deactivateOnUp = activateOnDown;
+            deactivateOnDown = activateOnUp;
+            deactivateOnLeft = activateOnRight;
+            deactivateOnRight = activateOnLeft;
+        }
 
         public string VisibilityMode
         {
-            get { return visibilityMode; } 
+            get { return visibilityMode; }
             set
             {
+                if(visibilityMode != value)
+                {
+                    ManageVisibility(value, IsActive, IsRecognizing);
+                }
+                
                 visibilityMode = value;
-                ManageVisibility();
+                OnPropertyChanged("VisibilityMode");
             }
         }
 
@@ -37,20 +112,59 @@ namespace BigBoxVoiceSearch.ViewModel
             IsActive = false;
             IsRecognizing = false;
 
-            // initialize the gif with the custom path if it exists
-            VoiceRecognitionGif = File.Exists(DirectoryInfoHelper.Instance.CustomGifPath)
-                ? new Uri(DirectoryInfoHelper.Instance.CustomGifPath)
-                : ResourceImages.VoiceRecognitionGifPath;
+            InitializeImages();
 
             voiceSearcher = new VoiceSearcher(RecognizeCompleted);
             await voiceSearcher.Initialize();
         }
 
+        public void InitializeImages()
+        {
+            if (File.Exists(DirectoryInfoHelper.Instance.InactiveBackgroundPath))
+            {
+                inactiveBackgroundImage = new Uri(DirectoryInfoHelper.Instance.InactiveBackgroundPath);
+            }
+
+            if (File.Exists(DirectoryInfoHelper.Instance.ActiveBackgroundPath))
+            {
+                activeBackgroundImage = new Uri(DirectoryInfoHelper.Instance.ActiveBackgroundPath);
+            }
+
+            if (File.Exists(DirectoryInfoHelper.Instance.RecognizingBackgroundPath))
+            {
+                recognizingBackgroundImage = new Uri(DirectoryInfoHelper.Instance.RecognizingBackgroundPath);
+            }
+
+            if (File.Exists(DirectoryInfoHelper.Instance.InactiveImagePath))
+            {
+                inactiveImage = new Uri(DirectoryInfoHelper.Instance.InactiveImagePath);
+            }
+
+            if (File.Exists(DirectoryInfoHelper.Instance.ActiveImagePath))
+            {
+                activeImage = new Uri(DirectoryInfoHelper.Instance.ActiveImagePath);
+            }
+
+            if (File.Exists(DirectoryInfoHelper.Instance.RecognizingImagePath))
+            {
+                recognizingImage = new Uri(DirectoryInfoHelper.Instance.RecognizingImagePath);
+            }
+
+            if (File.Exists(DirectoryInfoHelper.Instance.RecognizingAnimatedGifPath))
+            {
+                RecognizingAnimatedGif = new Uri(DirectoryInfoHelper.Instance.RecognizingAnimatedGifPath);
+            }
+
+            ForegroundImage = inactiveImage;
+            BackgroundImage = inactiveBackgroundImage;
+        }
 
         public void DoVoiceSearch()
         {
-            if(!voiceSearcher.IsInitialized)
+            if (!voiceSearcher.IsInitialized)
             {
+                IsRecognizing = false;
+                IsActive = false;
                 return;
             }
 
@@ -61,123 +175,124 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoUp(bool held)
         {
-            bool eventHandled = false;
-
-            if (ActivationMode == BigBoxVoiceSearchActivationMode.Up)
+            if (activateOnUp && !IsActive)
             {
                 IsActive = true;
-                eventHandled = true;
-            }
-            else if (ActivationMode == BigBoxVoiceSearchActivationMode.Down)
-            {
-                IsActive = false;
-                eventHandled = true;
+                return true;
             }
 
-            return eventHandled;
+            if (deactivateOnUp && IsActive)
+            {
+                IsActive = false;
+                return true;
+            }
+
+            return false;
         }
 
 
         public bool DoDown(bool held)
         {
-            bool eventHandled = false;
-
-            if (ActivationMode == BigBoxVoiceSearchActivationMode.Down)
+            if (activateOnDown && !IsActive)
             {
                 IsActive = true;
-                eventHandled = true;
-            }
-            else if (ActivationMode == BigBoxVoiceSearchActivationMode.Up)
-            {
-                IsActive = false;
-                eventHandled = true;
+                return true;
             }
 
-            return eventHandled;
+            if (deactivateOnDown && IsActive)
+            {
+                IsActive = false;
+                return true;
+            }
+
+            return false;
         }
 
         public bool DoLeft(bool held)
         {
-            bool eventHandled = false;
-
-            if (ActivationMode == BigBoxVoiceSearchActivationMode.Left)
+            if (activateOnLeft && !IsActive)
             {
                 IsActive = true;
-                eventHandled = true;
-            }
-            else if (ActivationMode == BigBoxVoiceSearchActivationMode.Right)
-            {
-                IsActive = false;
-                eventHandled = true;
+                return true;
             }
 
-            return eventHandled;
+            if (deactivateOnLeft && IsActive)
+            {
+                IsActive = false;
+                return true;
+            }
+
+            return false;
         }
 
 
         public bool DoRight(bool held)
         {
-            bool eventHandled = false;
-
-            if (ActivationMode == BigBoxVoiceSearchActivationMode.Right)
+            if (activateOnRight && !IsActive)
             {
                 IsActive = true;
-                eventHandled = true;
-            }
-            else if (ActivationMode == BigBoxVoiceSearchActivationMode.Left)
-            {
-                IsActive = false;
-                eventHandled = true;
+                return true;
             }
 
-            return eventHandled;
+            if (deactivateOnRight && IsActive)
+            {
+                IsActive = false;
+                return true;
+            }
+
+            return false;
         }
 
 
         public bool DoEnter()
         {
-            bool eventHandled = false;
-
             if (IsActive)
             {
                 DoVoiceSearch();
-                eventHandled = true;
+                return true;
             }
 
-            return eventHandled;
+            return false;
         }
 
         public bool DoEscape()
         {
-            bool eventHandled = false;
-            // not handling escape
-            return eventHandled;
+            if(IsRecognizing)
+            {                
+                voiceSearcher.TryCancelSearch();
+                IsRecognizing = false;
+                return true;
+            }
+
+            if(IsActive)
+            {
+                IsActive = false;
+                return true;
+            }                        
+
+            return false;
         }
 
         public bool DoPageDown()
         {
-            bool eventHandled = false;
-
-            if (ActivationMode == BigBoxVoiceSearchActivationMode.PageDown)
+            if (activateOnPageDown)
             {
                 DoVoiceSearch();
-                eventHandled = true;
+                return true;
             }
 
-            return eventHandled;
+            return false;
         }
 
         public bool DoPageUp()
         {
-            bool eventHandled = false;
-
-            if (ActivationMode == BigBoxVoiceSearchActivationMode.PageUp)
+            if (activateOnPageUp)
             {
                 DoVoiceSearch();
-                eventHandled = true;
+                return true;
             }
 
-            return eventHandled;
+            return false;
         }
 
         public bool IsRecognizing
@@ -185,10 +300,14 @@ namespace BigBoxVoiceSearch.ViewModel
             get { return isRecognizing; }
             set
             {
+                if (isRecognizing != value)
+                {
+                    ManageVisibility(VisibilityMode, IsActive, value);
+                    ManageImages(value, IsActive);
+                }
+
                 isRecognizing = value;
                 OnPropertyChanged("IsRecognizing");
-
-                ManageVisibility();
             }
         }
 
@@ -197,16 +316,22 @@ namespace BigBoxVoiceSearch.ViewModel
             get { return isActive; }
             set
             {
+                if (isActive != value)
+                {
+                    ManageVisibility(VisibilityMode, value, IsRecognizing);
+                    ManageImages(IsRecognizing, value);
+                }
+
                 isActive = value;
                 OnPropertyChanged("IsActive");
-
-                ManageVisibility();
             }
         }
 
         private void RecognizeCompleted(SpeechRecognizerResult result)
         {
             IsRecognizing = false;
+            IsActive = false;
+
             if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
             {
                 return;
@@ -222,30 +347,41 @@ namespace BigBoxVoiceSearch.ViewModel
             PluginHelper.BigBoxMainViewModel.Search(recognizedPhrase.Phrase);
         }
 
-        private Uri voiceRecognitionGif;
-        public Uri VoiceRecognitionGif
-        {
-            get { return voiceRecognitionGif; } 
-            set
-            {
-                voiceRecognitionGif = value;
-                OnPropertyChanged("VoiceRecognitionGif");
-            }
-        }
-
         public Visibility UserControlVisibility
         {
             get { return userControlVisibility; }
             set
             {
-                userControlVisibility = value;
-                OnPropertyChanged("UserControlVisibility");
+                if (userControlVisibility != value)
+                {
+                    userControlVisibility = value;
+                    OnPropertyChanged("UserControlVisibility");
+                }
             }
         }
 
-        private void ManageVisibility()
+        private void ManageImages(bool _isRecognizing, bool _isActive)
         {
-            switch (VisibilityMode)
+            if (_isRecognizing)
+            {
+                ForegroundImage = recognizingImage;
+                BackgroundImage = recognizingBackgroundImage;
+            }
+            else if (_isActive)
+            {
+                ForegroundImage = activeImage;
+                BackgroundImage = activeBackgroundImage;
+            }
+            else
+            {
+                ForegroundImage = inactiveImage;
+                BackgroundImage = inactiveBackgroundImage;
+            }
+        }
+
+        private void ManageVisibility(string _visibilityMode, bool _isActive, bool _isRecognizing)
+        {
+            switch (_visibilityMode)
             {
                 case BigBoxVoiceSearchVisibilityMode.Never:
                     UserControlVisibility = Visibility.Collapsed;
@@ -256,13 +392,13 @@ namespace BigBoxVoiceSearch.ViewModel
                     break;
 
                 case BigBoxVoiceSearchVisibilityMode.Active:
-                    UserControlVisibility = IsActive
+                    UserControlVisibility = _isActive
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
 
                 case BigBoxVoiceSearchVisibilityMode.Recognizing:
-                    UserControlVisibility = IsRecognizing
+                    UserControlVisibility = _isRecognizing
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;

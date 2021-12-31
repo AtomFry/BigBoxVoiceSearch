@@ -63,6 +63,31 @@ namespace BigBoxVoiceSearch.VoiceSearch
             return false;
         }
 
+        public void DoVoiceSearch()
+        {
+            if (!IsInitialized)
+            {
+                return;
+            }
+
+            speechRecognizerResult = new SpeechRecognizerResult();
+            recognizer.RecognizeAsync(RecognizeMode.Single);
+        }
+
+        public void TryCancelSearch()
+        {
+            try
+            {
+                if (recognizer != null)
+                {
+                    recognizer.RecognizeAsyncCancel();
+                }
+            }
+            finally
+            {
+
+            }
+        }
 
         private void Recognizer_SpeechHypothesized(object sender, SpeechHypothesizedEventArgs e)
         {
@@ -101,17 +126,6 @@ namespace BigBoxVoiceSearch.VoiceSearch
             }
 
             recognitionCompletedDelegate(speechRecognizerResult);
-        }
-
-        public void DoVoiceSearch()
-        {
-            if (!IsInitialized)
-            {
-                return;
-            }
-
-            speechRecognizerResult = new SpeechRecognizerResult();
-            recognizer.RecognizeAsync(RecognizeMode.Single);
         }
     }
 }

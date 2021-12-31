@@ -24,8 +24,29 @@
             <Image RenderOptions.BitmapScalingMode="HighQuality" 
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch" 
+                   Stretch="Fill"                    
+                   Source="{Binding BackgroundImage}">
+            </Image>
+            <Image RenderOptions.BitmapScalingMode="HighQuality" 
+                   HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Stretch" 
+                   Stretch="Uniform"                    
+                   Source="{Binding ForegroundImage}">
+                <Image.OpacityMask>
+                    <RadialGradientBrush Center="0.5,0.5">
+                        <GradientStop Offset="0" Color="Black"/>
+                        <GradientStop Offset="0.85" Color="Black"/>
+                        <GradientStop Offset="1.00" Color="Transparent"/>
+                    </RadialGradientBrush>
+                </Image.OpacityMask>                
+            </Image>            
+            <Image RenderOptions.BitmapScalingMode="HighQuality" 
+                   HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Stretch" 
                    Stretch="Uniform" 
-                   gif:ImageBehavior.AnimatedSource="{Binding VoiceRecognitionGif}">
+                   Grid.Row="0"
+                   Visibility="{Binding IsRecognizing, Converter={StaticResource BoolToVis}}"
+                   gif:ImageBehavior.AnimatedSource="{Binding RecognizingAnimatedGif}">
                 <Image.OpacityMask>
                     <RadialGradientBrush Center="0.5,0.5">
                         <GradientStop Offset="0" Color="Black"/>

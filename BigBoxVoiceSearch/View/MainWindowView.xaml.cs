@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using BigBoxVoiceSearch.Models;
 using BigBoxVoiceSearch.ViewModel;
@@ -11,37 +12,11 @@ namespace BigBoxVoiceSearch.View
     {
         private readonly MainWindowViewModel mainWindowViewModel;
 
-        public static readonly DependencyProperty VisibilityModeProperty = 
-            DependencyProperty.Register("VisibilityMode", typeof(string), typeof(MainWindowView), new PropertyMetadata(BigBoxVoiceSearchVisibilityMode.Never));
-
-        public string VisibilityMode
-        {
-            get { return (string)GetValue(VisibilityModeProperty); }
-            set
-            {
-                SetValue(VisibilityModeProperty, value);
-
-                // set the visibility mode in the view model 
-                InitializeMainWindowViewModelVisibilityMode();
-            }
-        }
-
         public static readonly DependencyProperty ActivationModeProperty =
             DependencyProperty.Register("ActivationMode", typeof(string), typeof(MainWindowView), new PropertyMetadata(BigBoxVoiceSearchActivationMode.Off));
 
-
-        public string ActivationMode
-        {
-            get { return (string)GetValue(ActivationModeProperty); }
-            set
-            {
-                SetValue(ActivationModeProperty, value);
-
-                // set the activation mode in the view model 
-                InitializeMainWindowViewModelActivationMode();
-            }
-        }
-
+        public static readonly DependencyProperty VisibilityModeProperty =
+            DependencyProperty.Register("VisibilityMode", typeof(string), typeof(MainWindowView), new PropertyMetadata(BigBoxVoiceSearchVisibilityMode.Never));
 
         public MainWindowView()
         {
@@ -64,11 +39,35 @@ namespace BigBoxVoiceSearch.View
             InitializeMainWindowViewModelVisibilityMode();
         }
 
+        public string ActivationMode
+        {
+            get { return (string)GetValue(ActivationModeProperty); }
+            set
+            {
+                SetValue(ActivationModeProperty, value);
+
+                // set the activation mode in the view model 
+                InitializeMainWindowViewModelActivationMode();
+            }
+        }
+
         private void InitializeMainWindowViewModelActivationMode()
         {
             if (mainWindowViewModel != null)
             {
                 mainWindowViewModel.ActivationMode = ActivationMode;
+            }
+        }
+
+        public string VisibilityMode
+        {
+            get { return (string)GetValue(VisibilityModeProperty); }
+            set
+            {
+                SetValue(VisibilityModeProperty, value);
+
+                // set the visibility mode in the view model 
+                InitializeMainWindowViewModelVisibilityMode();
             }
         }
 
