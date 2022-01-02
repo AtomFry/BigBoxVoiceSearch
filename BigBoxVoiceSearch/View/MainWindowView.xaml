@@ -20,12 +20,6 @@
             <Image RenderOptions.BitmapScalingMode="HighQuality" 
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch" 
-                   Stretch="Fill"                    
-                   Source="{Binding BackgroundImage}">
-            </Image>
-            <Image RenderOptions.BitmapScalingMode="HighQuality" 
-                   HorizontalAlignment="Stretch" 
-                   VerticalAlignment="Stretch" 
                    Stretch="Uniform"                    
                    Source="{Binding ForegroundImage}">
             </Image>

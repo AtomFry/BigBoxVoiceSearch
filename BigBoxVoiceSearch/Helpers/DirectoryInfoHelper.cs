@@ -47,16 +47,16 @@ namespace BigBoxVoiceSearch.Helpers
             }
         }
 
-        private string recognizingImagePath;
-        public string RecognizingImagePath
+        private string initializingImagePath;
+        public string InitializingImagePath
         {
             get
             {
-                if(string.IsNullOrWhiteSpace(recognizingImagePath))
+                if(string.IsNullOrWhiteSpace(initializingImagePath))
                 {
-                    recognizingImagePath = $"{MediaFolder}\\Recognizing.png";
+                    initializingImagePath = $"{MediaFolder}\\Initializing.png";
                 }
-                return recognizingImagePath;
+                return initializingImagePath;
             }
         }
 
@@ -86,42 +86,29 @@ namespace BigBoxVoiceSearch.Helpers
             }
         }
 
-        private string inactiveBackgroundPath;
-        public string InactiveBackgroundPath
+        private string recognizingImagePath;
+        public string RecognizingImagePath
         {
             get
             {
-                if(string.IsNullOrWhiteSpace(inactiveBackgroundPath))
+                if (string.IsNullOrWhiteSpace(recognizingImagePath))
                 {
-                    inactiveBackgroundPath = $"{MediaFolder}\\InactiveBackground.png";
+                    recognizingImagePath = $"{MediaFolder}\\Recognizing.png";
                 }
-                return inactiveBackgroundPath;
+                return recognizingImagePath;
             }
         }
 
-        private string activeBackgroundPath;
-        public string ActiveBackgroundPath
+        private string recognizingGifPath;
+        public string RecognizingGifPath
         {
             get
             {
-                if(string.IsNullOrWhiteSpace(activeBackgroundPath))
+                if(string.IsNullOrWhiteSpace(recognizingGifPath))
                 {
-                    activeBackgroundPath = $"{MediaFolder}\\ActiveBackground.png";
+                    recognizingGifPath = $"{MediaFolder}\\Recognizing.gif";
                 }
-                return activeBackgroundPath;
-            }
-        }
-
-        private string recognizingBackgroundPath;
-        public string RecognizingBackgroundPath
-        {
-            get
-            {
-                if(string.IsNullOrWhiteSpace(recognizingBackgroundPath))
-                {
-                    recognizingBackgroundPath = $"{MediaFolder}\\RecognizingBackground.png";
-                }
-                return recognizingBackgroundPath;
+                return recognizingGifPath;
             }
         }
 

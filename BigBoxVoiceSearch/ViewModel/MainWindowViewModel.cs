@@ -14,20 +14,88 @@ namespace BigBoxVoiceSearch.ViewModel
     public class MainWindowViewModel : ViewModelBase
     {
         private VoiceSearcher voiceSearcher;
+        private bool isInitializing;
         private bool isRecognizing;
         private bool isActive;
-        private Visibility userControlVisibility;
         private string visibilityMode;
+        private Visibility userControlVisibility;
 
         private bool activateOnUp, activateOnDown, activateOnLeft, activateOnRight, activateOnPageUp, activateOnPageDown;
         private bool deactivateOnUp, deactivateOnDown, deactivateOnLeft, deactivateOnRight;
 
-        private Uri inactiveBackgroundImage;
-        private Uri activeBackgroundImage;
-        private Uri recognizingBackgroundImage;
+        private Uri initializingImage;
         private Uri inactiveImage;
         private Uri activeImage;
         private Uri recognizingImage;
+        private Uri recognizingAnimatedGif;
+
+        public string CustomInitializingImagePath { get; set; }
+        public string CustomInactiveImagePath { get; set; }
+        public string CustomActiveImagePath { get; set; }
+        public string CustomRecognizingImagePath { get; set; }
+        public string CustomRecognizingAnimatedGifPath { get; set; }
+
+        public async Task Initialize()
+        {
+            IsActive = false;
+            IsRecognizing = false;
+
+            InitializeImages();
+
+            voiceSearcher = new VoiceSearcher(RecognizeCompleted);
+            await voiceSearcher.Initialize();
+        }
+
+        private void InitializeImages()
+        {
+            if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInitializingImagePath)))
+            {
+                initializingImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInitializingImagePath));
+            }
+            else if (File.Exists(DirectoryInfoHelper.Instance.InitializingImagePath))
+            {
+                initializingImage = new Uri(DirectoryInfoHelper.Instance.InitializingImagePath);
+            }
+
+            if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInactiveImagePath)))
+            {
+                inactiveImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInactiveImagePath));
+            }
+            else if (File.Exists(DirectoryInfoHelper.Instance.InactiveImagePath))
+            {
+                inactiveImage = new Uri(DirectoryInfoHelper.Instance.InactiveImagePath);
+            }
+
+            if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomActiveImagePath)))
+            {
+                activeImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomActiveImagePath));
+            }
+            else if (File.Exists(DirectoryInfoHelper.Instance.ActiveImagePath))
+            {
+                activeImage = new Uri(DirectoryInfoHelper.Instance.ActiveImagePath);
+            }
+
+            if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomRecognizingImagePath)))
+            {
+                recognizingImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomRecognizingImagePath));
+            }
+            else if (File.Exists(DirectoryInfoHelper.Instance.RecognizingImagePath))
+            {
+                recognizingImage = new Uri(DirectoryInfoHelper.Instance.RecognizingImagePath);
+            }
+
+            if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomRecognizingAnimatedGifPath)))
+            {
+                recognizingAnimatedGif = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomRecognizingAnimatedGifPath));
+            }
+            else if (File.Exists(DirectoryInfoHelper.Instance.RecognizingGifPath))
+            {
+                recognizingAnimatedGif = new Uri(DirectoryInfoHelper.Instance.RecognizingGifPath);
+            }
+
+            ForegroundImage = inactiveImage;
+        }
+
 
         private Uri foregroundImage;
         public Uri ForegroundImage
@@ -86,61 +154,14 @@ namespace BigBoxVoiceSearch.ViewModel
             get { return visibilityMode; }
             set
             {
-                if(visibilityMode != value)
+                if (visibilityMode != value)
                 {
                     ManageVisibility(value, IsActive, IsRecognizing);
                 }
-                
+
                 visibilityMode = value;
                 OnPropertyChanged("VisibilityMode");
             }
-        }
-
-        public async Task Initialize()
-        {
-            IsActive = false;
-            IsRecognizing = false;
-
-            InitializeImages();
-
-            voiceSearcher = new VoiceSearcher(RecognizeCompleted);
-            await voiceSearcher.Initialize();
-        }
-
-        public void InitializeImages()
-        {
-            if (File.Exists(DirectoryInfoHelper.Instance.InactiveBackgroundPath))
-            {
-                inactiveBackgroundImage = new Uri(DirectoryInfoHelper.Instance.InactiveBackgroundPath);
-            }
-
-            if (File.Exists(DirectoryInfoHelper.Instance.ActiveBackgroundPath))
-            {
-                activeBackgroundImage = new Uri(DirectoryInfoHelper.Instance.ActiveBackgroundPath);
-            }
-
-            if (File.Exists(DirectoryInfoHelper.Instance.RecognizingBackgroundPath))
-            {
-                recognizingBackgroundImage = new Uri(DirectoryInfoHelper.Instance.RecognizingBackgroundPath);
-            }
-
-            if (File.Exists(DirectoryInfoHelper.Instance.InactiveImagePath))
-            {
-                inactiveImage = new Uri(DirectoryInfoHelper.Instance.InactiveImagePath);
-            }
-
-            if (File.Exists(DirectoryInfoHelper.Instance.ActiveImagePath))
-            {
-                activeImage = new Uri(DirectoryInfoHelper.Instance.ActiveImagePath);
-            }
-
-            if (File.Exists(DirectoryInfoHelper.Instance.RecognizingImagePath))
-            {
-                recognizingImage = new Uri(DirectoryInfoHelper.Instance.RecognizingImagePath);
-            }
-
-            ForegroundImage = inactiveImage;
-            BackgroundImage = inactiveBackgroundImage;
         }
 
         public void DoVoiceSearch()
@@ -155,7 +176,6 @@ namespace BigBoxVoiceSearch.ViewModel
             IsRecognizing = true;
             voiceSearcher.DoVoiceSearch();
         }
-
 
         public bool DoUp(bool held)
         {
@@ -173,7 +193,6 @@ namespace BigBoxVoiceSearch.ViewModel
 
             return false;
         }
-
 
         public bool DoDown(bool held)
         {
@@ -241,18 +260,18 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoEscape()
         {
-            if(IsRecognizing)
-            {                
+            if (IsRecognizing)
+            {
                 voiceSearcher.TryCancelSearch();
                 IsRecognizing = false;
                 return true;
             }
 
-            if(IsActive)
+            if (IsActive)
             {
                 IsActive = false;
                 return true;
-            }                        
+            }
 
             return false;
         }
@@ -277,6 +296,19 @@ namespace BigBoxVoiceSearch.ViewModel
             }
 
             return false;
+        }
+
+        public bool IsInitializing
+        {
+            get { return isInitializing; }
+            set
+            {
+                if (isInitializing != value)
+                {
+                    isInitializing = value;
+                    OnPropertyChanged("IsInitializing");
+                }
+            }
         }
 
         public bool IsRecognizing
@@ -349,17 +381,14 @@ namespace BigBoxVoiceSearch.ViewModel
             if (_isRecognizing)
             {
                 ForegroundImage = recognizingImage;
-                BackgroundImage = recognizingBackgroundImage;
             }
             else if (_isActive)
             {
                 ForegroundImage = activeImage;
-                BackgroundImage = activeBackgroundImage;
             }
             else
             {
                 ForegroundImage = inactiveImage;
-                BackgroundImage = inactiveBackgroundImage;
             }
         }
 
@@ -392,6 +421,5 @@ namespace BigBoxVoiceSearch.ViewModel
                     break;
             }
         }
-
     }
 }

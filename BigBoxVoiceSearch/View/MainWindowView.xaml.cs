@@ -17,6 +17,22 @@ namespace BigBoxVoiceSearch.View
         public static readonly DependencyProperty VisibilityModeProperty =
             DependencyProperty.Register("VisibilityMode", typeof(string), typeof(MainWindowView), new PropertyMetadata(BigBoxVoiceSearchVisibilityMode.Never));
 
+       public static readonly DependencyProperty InitializingImagePathProperty =
+            DependencyProperty.Register("InitializingImagePath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty InactiveImagePathProperty =
+            DependencyProperty.Register("InactiveImagePath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty ActiveImagePathProperty =
+            DependencyProperty.Register("ActiveImagePath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty RecognizingImagePathProperty =
+            DependencyProperty.Register("RecognizingImagePath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty RecognizingAnimatedGifPathProperty =
+            DependencyProperty.Register("RecognizingAnimatedGifPath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
+
+
         public MainWindowView()
         {
             InitializeComponent();
@@ -29,13 +45,21 @@ namespace BigBoxVoiceSearch.View
 
         private async void MainWindowView_Loaded(object sender, RoutedEventArgs e)
         {
-            await mainWindowViewModel.Initialize();
-
             // set the activation mode in the view model 
             InitializeMainWindowViewModelActivationMode();
 
             // set the visibility mode in the view model 
             InitializeMainWindowViewModelVisibilityMode();
+
+            // set custom image paths in the view model
+            InitializeMainWindowViewModelCustomInitializingImagePath();
+            InitializeMainWindowViewModelCustomInactiveImagePath();
+            InitializeMainWindowViewModelCustomActiveImagePath();
+            InitializeMainWindowViewModelCustomRecognizingImagePath();
+            InitializeMainWindowViewModelCustomRecognizingAnimatedGifPath();
+
+            // ask the view model to set itself up
+            await mainWindowViewModel.Initialize();
         }
 
         public string ActivationMode
@@ -72,9 +96,99 @@ namespace BigBoxVoiceSearch.View
 
         private void InitializeMainWindowViewModelVisibilityMode()
         {
-            if(mainWindowViewModel != null)
+            if (mainWindowViewModel != null)
             {
                 mainWindowViewModel.VisibilityMode = VisibilityMode;
+            }
+        }
+
+        public string InitializingImagePath
+        {
+            get { return (string)GetValue(InitializingImagePathProperty); }
+            set
+            {
+                SetValue(InitializingImagePathProperty, value);
+                InitializeMainWindowViewModelCustomInitializingImagePath();
+            }
+        }
+
+        private void InitializeMainWindowViewModelCustomInitializingImagePath()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.CustomInitializingImagePath = InitializingImagePath;
+            }
+        }
+
+        public string InactiveImagePath
+        {
+            get { return (string)GetValue(InactiveImagePathProperty); }
+            set
+            {
+                SetValue(InactiveImagePathProperty, value);
+                InitializeMainWindowViewModelCustomInactiveImagePath();
+            }
+        }
+
+        private void InitializeMainWindowViewModelCustomInactiveImagePath()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.CustomInactiveImagePath = InactiveImagePath;
+            }
+        }
+
+        public string ActiveImagePath
+        {
+            get { return (string)GetValue(ActiveImagePathProperty); }
+            set
+            {
+                SetValue(ActiveImagePathProperty, value);
+                InitializeMainWindowViewModelCustomActiveImagePath();
+            }
+        }
+
+        private void InitializeMainWindowViewModelCustomActiveImagePath()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.CustomActiveImagePath = ActiveImagePath;
+            }
+        }
+
+        public string RecognizingImagePath
+        {
+            get { return (string)GetValue(RecognizingImagePathProperty); }
+            set
+            {
+                SetValue(RecognizingImagePathProperty, value);
+                InitializeMainWindowViewModelCustomRecognizingImagePath();
+            }
+        }
+
+        private void InitializeMainWindowViewModelCustomRecognizingImagePath()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.CustomRecognizingImagePath = RecognizingImagePath;
+            }
+        }
+
+        public string RecognizingAnimatedGifPath
+        {
+            get { return (string)GetValue(RecognizingAnimatedGifPathProperty); }
+            set 
+            { 
+                SetValue(RecognizingAnimatedGifPathProperty, value);
+                InitializeMainWindowViewModelCustomRecognizingAnimatedGifPath();
+            }
+        }
+
+        private void InitializeMainWindowViewModelCustomRecognizingAnimatedGifPath()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.CustomRecognizingAnimatedGifPath = RecognizingAnimatedGifPath;
             }
         }
 
