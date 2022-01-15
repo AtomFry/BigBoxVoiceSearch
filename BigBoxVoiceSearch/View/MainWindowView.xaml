@@ -3,13 +3,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:BigBoxVoiceSearch.View"
-             xmlns:gif="http://wpfanimatedgif.codeplex.com" 
+             xmlns:local="clr-namespace:BigBoxVoiceSearch.View"             
              xmlns:viewmodel="clr-namespace:BigBoxVoiceSearch.ViewModel" 
              d:DataContext="{d:DesignInstance Type=viewmodel:MainWindowViewModel}"
+             xmlns:myconverters="clr-namespace:BigBoxVoiceSearch.Converters"             
              mc:Ignorable="d" 
              Name="MainWindowUserControl"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        <myconverters:BigBoxVoiceSearchStateToVisibilityConverter x:Key="IsInitializing" StateComparison="Initializing"/>
+        <myconverters:BigBoxVoiceSearchStateToVisibilityConverter x:Key="IsInitializingFailed" StateComparison="InitializingFailed"/>
+        <myconverters:BigBoxVoiceSearchStateToVisibilityConverter x:Key="IsInactive" StateComparison="Inactive"/>
+        <myconverters:BigBoxVoiceSearchStateToVisibilityConverter x:Key="IsActive" StateComparison="Active"/>
+        <myconverters:BigBoxVoiceSearchStateToVisibilityConverter x:Key="IsRecognizing" StateComparison="Recognizing"/>
+    </UserControl.Resources>
     <Canvas Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
             Width="{Binding ActualWidth, ElementName=MainWindowUserControl}"
             Height="{Binding ActualHeight, ElementName=MainWindowUserControl}"
@@ -21,7 +29,36 @@
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch" 
                    Stretch="Uniform"                    
-                   Source="{Binding ForegroundImage}">
+                   Source="{Binding InitializingImage}"
+                   Visibility="{Binding State, Converter={StaticResource IsInitializing}}">
+            </Image>
+            <Image RenderOptions.BitmapScalingMode="HighQuality" 
+                   HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Stretch" 
+                   Stretch="Uniform"                    
+                   Source="{Binding InitializingFailedImage}"
+                   Visibility="{Binding State, Converter={StaticResource IsInitializingFailed}}">
+            </Image>
+            <Image RenderOptions.BitmapScalingMode="HighQuality" 
+                   HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Stretch" 
+                   Stretch="Uniform"                    
+                   Source="{Binding InactiveImage}"
+                   Visibility="{Binding State, Converter={StaticResource IsInactive}}">
+            </Image>
+            <Image RenderOptions.BitmapScalingMode="HighQuality" 
+                   HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Stretch" 
+                   Stretch="Uniform"                    
+                   Source="{Binding ActiveImage}"
+                   Visibility="{Binding State, Converter={StaticResource IsActive}}">
+            </Image>
+            <Image RenderOptions.BitmapScalingMode="HighQuality" 
+                   HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Stretch" 
+                   Stretch="Uniform"                    
+                   Source="{Binding RecognizingImage}"
+                   Visibility="{Binding State, Converter={StaticResource IsRecognizing}}">
             </Image>
         </Grid>
     </Canvas>

@@ -63,6 +63,7 @@ namespace BigBoxVoiceSearch.VoiceSearch
                 return string.Empty;
             }
 
+            originalString = originalString.Replace("*", string.Empty);
             originalString = originalString.Replace(":", string.Empty);
             originalString = originalString.Replace("\"", string.Empty);
             originalString = originalString.Replace("!", string.Empty);

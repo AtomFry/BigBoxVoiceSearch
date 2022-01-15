@@ -14,11 +14,26 @@ namespace BigBoxVoiceSearch.View
         public static readonly DependencyProperty ActivationModeProperty =
             DependencyProperty.Register("ActivationMode", typeof(string), typeof(MainWindowView), new PropertyMetadata(BigBoxVoiceSearchActivationMode.Off));
 
-        public static readonly DependencyProperty VisibilityModeProperty =
-            DependencyProperty.Register("VisibilityMode", typeof(string), typeof(MainWindowView), new PropertyMetadata(BigBoxVoiceSearchVisibilityMode.Never));
+        public static readonly DependencyProperty ShowInitializingProperty =
+            DependencyProperty.Register("ShowInitializing", typeof(bool), typeof(MainWindowView), new PropertyMetadata(false));
 
-       public static readonly DependencyProperty InitializingImagePathProperty =
+        public static readonly DependencyProperty ShowInitializingFailedProperty =
+            DependencyProperty.Register("ShowInitializingFailed", typeof(bool), typeof(MainWindowView), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty ShowInactiveProperty =
+            DependencyProperty.Register("ShowInactive", typeof(bool), typeof(MainWindowView), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty ShowActiveProperty =
+            DependencyProperty.Register("ShowActive", typeof(bool), typeof(MainWindowView), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty ShowRecognizingProperty =
+            DependencyProperty.Register("ShowRecognizing", typeof(bool), typeof(MainWindowView), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty InitializingImagePathProperty =
             DependencyProperty.Register("InitializingImagePath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty InitializingFailedImagePathProperty =
+            DependencyProperty.Register("InitializingFailedImagePath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
 
         public static readonly DependencyProperty InactiveImagePathProperty =
             DependencyProperty.Register("InactiveImagePath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
@@ -28,9 +43,6 @@ namespace BigBoxVoiceSearch.View
 
         public static readonly DependencyProperty RecognizingImagePathProperty =
             DependencyProperty.Register("RecognizingImagePath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
-
-        public static readonly DependencyProperty RecognizingAnimatedGifPathProperty =
-            DependencyProperty.Register("RecognizingAnimatedGifPath", typeof(string), typeof(MainWindowView), new PropertyMetadata(string.Empty));
 
 
         public MainWindowView()
@@ -43,23 +55,27 @@ namespace BigBoxVoiceSearch.View
             Loaded += MainWindowView_Loaded;
         }
 
-        private async void MainWindowView_Loaded(object sender, RoutedEventArgs e)
+        private void MainWindowView_Loaded(object sender, RoutedEventArgs e)
         {
             // set the activation mode in the view model 
             InitializeMainWindowViewModelActivationMode();
 
-            // set the visibility mode in the view model 
-            InitializeMainWindowViewModelVisibilityMode();
-
             // set custom image paths in the view model
             InitializeMainWindowViewModelCustomInitializingImagePath();
+            InitializeMainWindowViewModelCustomInitializingFailedImagePath();
             InitializeMainWindowViewModelCustomInactiveImagePath();
             InitializeMainWindowViewModelCustomActiveImagePath();
-            InitializeMainWindowViewModelCustomRecognizingImagePath();
-            InitializeMainWindowViewModelCustomRecognizingAnimatedGifPath();
+            InitializeMainWindowViewModelCustomRecognizingImagePath();            
+
+            // set flags that drive what states the user control is visible in 
+            InitializeShowActive();
+            InitializeShowInactive();
+            InitializeShowInitializing();
+            InitializeShowInitializingFailed();
+            InitializeShowRecognizing();
 
             // ask the view model to set itself up
-            await mainWindowViewModel.Initialize();
+            mainWindowViewModel.Initialize();
         }
 
         public string ActivationMode
@@ -82,26 +98,6 @@ namespace BigBoxVoiceSearch.View
             }
         }
 
-        public string VisibilityMode
-        {
-            get { return (string)GetValue(VisibilityModeProperty); }
-            set
-            {
-                SetValue(VisibilityModeProperty, value);
-
-                // set the visibility mode in the view model 
-                InitializeMainWindowViewModelVisibilityMode();
-            }
-        }
-
-        private void InitializeMainWindowViewModelVisibilityMode()
-        {
-            if (mainWindowViewModel != null)
-            {
-                mainWindowViewModel.VisibilityMode = VisibilityMode;
-            }
-        }
-
         public string InitializingImagePath
         {
             get { return (string)GetValue(InitializingImagePathProperty); }
@@ -117,6 +113,24 @@ namespace BigBoxVoiceSearch.View
             if (mainWindowViewModel != null)
             {
                 mainWindowViewModel.CustomInitializingImagePath = InitializingImagePath;
+            }
+        }
+
+        public string InitializingFailedImagePath
+        {
+            get { return (string)GetValue(InitializingFailedImagePathProperty); }
+            set
+            {
+                SetValue(InitializingFailedImagePathProperty, value);
+                InitializeMainWindowViewModelCustomInitializingFailedImagePath();
+            }
+        }
+
+        private void InitializeMainWindowViewModelCustomInitializingFailedImagePath()
+        {
+            if(mainWindowViewModel != null)
+            {
+                mainWindowViewModel.CustomInitializingFailedImagePath = InitializingFailedImagePath;
             }
         }
 
@@ -174,21 +188,93 @@ namespace BigBoxVoiceSearch.View
             }
         }
 
-        public string RecognizingAnimatedGifPath
+        public bool ShowInitializing
         {
-            get { return (string)GetValue(RecognizingAnimatedGifPathProperty); }
+            get { return (bool)GetValue(ShowInitializingProperty); }
             set 
             { 
-                SetValue(RecognizingAnimatedGifPathProperty, value);
-                InitializeMainWindowViewModelCustomRecognizingAnimatedGifPath();
+                SetValue(ShowInitializingProperty, value);
+                InitializeShowInitializing();
             }
         }
 
-        private void InitializeMainWindowViewModelCustomRecognizingAnimatedGifPath()
+        private void InitializeShowInitializing()
         {
             if (mainWindowViewModel != null)
             {
-                mainWindowViewModel.CustomRecognizingAnimatedGifPath = RecognizingAnimatedGifPath;
+                mainWindowViewModel.ShowInitializing = ShowInitializing;
+            }
+        }
+
+        public bool ShowInitializingFailed
+        {
+            get { return (bool)GetValue(ShowInitializingFailedProperty); }
+            set
+            {
+                SetValue(ShowInitializingFailedProperty, value);
+                InitializeShowInitializingFailed();
+            }
+        }
+
+        private void InitializeShowInitializingFailed()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.ShowInitializingFailed = ShowInitializingFailed;
+            }
+        }
+
+        public bool ShowInactive
+        {
+            get { return (bool)GetValue(ShowInactiveProperty); }
+            set 
+            { 
+                SetValue(ShowInactiveProperty, value);
+                InitializeShowInactive();
+            }
+        }
+
+        private void InitializeShowInactive()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.ShowInactive = ShowInactive;
+            }
+        }
+
+        public bool ShowActive
+        {
+            get { return (bool)GetValue(ShowActiveProperty); }
+            set 
+            { 
+                SetValue(ShowActiveProperty, value);
+                InitializeShowActive();
+            }
+        }
+
+        private void InitializeShowActive()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.ShowActive = ShowActive;
+            }
+        }
+
+        public bool ShowRecognizing
+        {
+            get { return (bool)GetValue(ShowRecognizingProperty); }
+            set 
+            { 
+                SetValue(ShowRecognizingProperty, value);
+                InitializeShowRecognizing();
+            }
+        }
+
+        private void InitializeShowRecognizing()
+        {
+            if (mainWindowViewModel != null)
+            {
+                mainWindowViewModel.ShowRecognizing = ShowRecognizing;
             }
         }
 

@@ -8,7 +8,7 @@ namespace BigBoxVoiceSearch.Models
     {
         None,
         Initializing,
-        InitializeFailed,
+        InitializingFailed,
         Inactive,
         Active,
         Recognizing

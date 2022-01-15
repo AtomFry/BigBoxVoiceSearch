@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Unbroken.LaunchBox.Plugins;
 using Unbroken.LaunchBox.Plugins.Data;
 
@@ -12,60 +15,87 @@ namespace BigBoxVoiceSearch.VoiceSearch
         private readonly string[] ForwardSlashSplitter = new string[1] { "/" };
 
         public List<GameTitleGrammar> GameTitleGrammars { get; set; }
-
-        public GameTitleGrammarBuilder(IGame _game)
+        
+        public GameTitleGrammarBuilder(string _title)
         {
             GameTitleGrammars = new List<GameTitleGrammar>();
-            string[] gameTitles = _game.Title.Split(ForwardSlashSplitter, StringSplitOptions.RemoveEmptyEntries);
+            string[] gameTitles = _title.Split(ForwardSlashSplitter, StringSplitOptions.RemoveEmptyEntries);
             foreach (string gameTitle in gameTitles)
             {
                 GameTitleGrammars.Add(new GameTitleGrammar(gameTitle.Trim()));
             }
         }
 
-        public static List<string> GetGameTitleGrammar()
+        public static List<string> GetGrammar(string title)
         {
-            IGame[] games = PluginHelper.DataManager.GetAllGames();
-
             List<string> gameTitlePhrases = new List<string>();
 
-            foreach (IGame game in games)
+            if (string.IsNullOrWhiteSpace(title))
             {
-                GameTitleGrammarBuilder gameTitleGrammarBuilder = new GameTitleGrammarBuilder(game);
+                return gameTitlePhrases;
+            }
 
-                foreach (GameTitleGrammar gameTitleGrammar in gameTitleGrammarBuilder.GameTitleGrammars)
+            GameTitleGrammarBuilder gameTitleGrammarBuilder = new GameTitleGrammarBuilder(title);
+
+            foreach (GameTitleGrammar gameTitleGrammar in gameTitleGrammarBuilder.GameTitleGrammars)
+            {
+                if (!string.IsNullOrWhiteSpace(gameTitleGrammar.Title))
                 {
-                    if (!string.IsNullOrWhiteSpace(gameTitleGrammar.Title))
-                    {
-                        gameTitlePhrases.Add(gameTitleGrammar.Title);
-                    }
+                    gameTitlePhrases.Add(gameTitleGrammar.Title);
+                }
 
-                    if (!string.IsNullOrWhiteSpace(gameTitleGrammar.MainTitle))
-                    {
-                        gameTitlePhrases.Add(gameTitleGrammar.MainTitle);
-                    }
+                if (!string.IsNullOrWhiteSpace(gameTitleGrammar.MainTitle))
+                {
+                    gameTitlePhrases.Add(gameTitleGrammar.MainTitle);
+                }
 
-                    if (!string.IsNullOrWhiteSpace(gameTitleGrammar.Subtitle))
-                    {
-                        gameTitlePhrases.Add(gameTitleGrammar.Subtitle);
-                    }
+                if (!string.IsNullOrWhiteSpace(gameTitleGrammar.Subtitle))
+                {
+                    gameTitlePhrases.Add(gameTitleGrammar.Subtitle);
+                }
 
-                    for (int i = 0; i < gameTitleGrammar.TitleWords.Count; i++)
+                for (int i = 0; i < gameTitleGrammar.TitleWords.Count; i++)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    for (int j = i; j < gameTitleGrammar.TitleWords.Count; j++)
                     {
-                        StringBuilder sb = new StringBuilder();
-                        for (int j = i; j < gameTitleGrammar.TitleWords.Count; j++)
+                        sb.Append($"{gameTitleGrammar.TitleWords[j]} ");
+                        if (!GameTitleGrammar.IsNoiseWord(sb.ToString().Trim()))
                         {
-                            sb.Append($"{gameTitleGrammar.TitleWords[j]} ");
-                            if (!GameTitleGrammar.IsNoiseWord(sb.ToString().Trim()))
-                            {
-                                gameTitlePhrases.Add(sb.ToString().Trim());
-                            }
+                            gameTitlePhrases.Add(sb.ToString().Trim());
                         }
                     }
                 }
             }
 
             return gameTitlePhrases;
+        }
+
+        public static List<string> GetGameTitleGrammar()
+        {
+            ConcurrentBag<string> gamePhraseBag = new ConcurrentBag<string>();
+
+            IGame[] games = PluginHelper.DataManager.GetAllGames();
+
+            List<string> gameTitlePhrases = new List<string>();
+
+            Parallel.ForEach(games, game =>
+            {
+                List<string> phrases = GetGrammar(game.Title);
+
+                IAlternateName[] alternateNames = game.GetAllAlternateNames();
+                foreach (IAlternateName alternateName in alternateNames)
+                {
+                    phrases.AddRange(GetGrammar(alternateName.Name));
+                }
+
+                foreach (string phrase in phrases)
+                {
+                    gamePhraseBag.Add(phrase);
+                }
+            });
+
+            return gamePhraseBag.ToList();
         }
 
     }

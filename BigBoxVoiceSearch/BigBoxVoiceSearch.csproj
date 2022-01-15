@@ -6,17 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="EmbeddedResources\VoiceRecognitionGif.gif" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Dependencies\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Speech" Version="5.0.0" />
-    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,18 +20,8 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="EmbeddedResources\VoiceRecognitionGif.gif" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Dependencies\WpfAnimatedGif.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if exist &quot;$(TargetDir)BigBoxVoiceSearch.pdb&quot; xcopy &quot;$(TargetDir)BigBoxVoiceSearch.pdb&quot; &quot;C:\Users\Adam\Documents\LaunchBox\Plugins&quot; /K /D /H /Y&#xD;&#xA;if exist &quot;$(TargetDir)LaunchBox\&quot; rd /q /s &quot;$(TargetDir)LaunchBox&quot;&#xD;&#xA;xcopy &quot;$(ProjectDir)Deploy&quot; &quot;$(TargetDir)&quot; /K /D /H /Y /E&#xD;&#xA;xcopy &quot;$(TargetDir)BigBoxVoiceSearch.dll&quot; &quot;$(TargetDir)LaunchBox\Plugins&quot; /K /D /H /Y&#xD;&#xA;xcopy &quot;$(ProjectDir)Dependencies\System.Speech.dll&quot; &quot;$(TargetDir)LaunchBox\Plugins&quot; /K /D /H /Y&#xD;&#xA;xcopy &quot;$(ProjectDir)Dependencies\WpfAnimatedGif.dll&quot; &quot;$(TargetDir)LaunchBox\Plugins&quot; /K /D /H /Y&#xD;&#xA;xcopy &quot;$(TargetDir)\LaunchBox\&quot; &quot;C:\Users\Adam\Documents\LaunchBox\&quot; /K /D /H /Y /E" />
+    <Exec Command="if exist &quot;$(TargetDir)BigBoxVoiceSearch.pdb&quot; xcopy &quot;$(TargetDir)BigBoxVoiceSearch.pdb&quot; &quot;C:\Users\Adam\Documents\LaunchBox\Plugins&quot; /K /D /H /Y&#xD;&#xA;if exist &quot;$(TargetDir)LaunchBox\&quot; rd /q /s &quot;$(TargetDir)LaunchBox&quot;&#xD;&#xA;xcopy &quot;$(ProjectDir)Deploy&quot; &quot;$(TargetDir)&quot; /K /D /H /Y /E&#xD;&#xA;xcopy &quot;$(TargetDir)BigBoxVoiceSearch.dll&quot; &quot;$(TargetDir)LaunchBox\Plugins&quot; /K /D /H /Y&#xD;&#xA;xcopy &quot;$(ProjectDir)Dependencies\System.Speech.dll&quot; &quot;$(TargetDir)LaunchBox\Plugins&quot; /K /D /H /Y&#xD;&#xA;xcopy &quot;$(TargetDir)\LaunchBox\&quot; &quot;C:\Users\Adam\Documents\LaunchBox\&quot; /K /D /H /Y /E" />
   </Target>
 
 </Project>

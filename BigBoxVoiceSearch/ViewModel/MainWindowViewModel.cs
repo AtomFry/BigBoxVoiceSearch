@@ -3,6 +3,7 @@ using BigBoxVoiceSearch.Helpers;
 using BigBoxVoiceSearch.Models;
 using BigBoxVoiceSearch.VoiceSearch;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,108 +15,231 @@ namespace BigBoxVoiceSearch.ViewModel
     public class MainWindowViewModel : ViewModelBase
     {
         private VoiceSearcher voiceSearcher;
-        private bool isInitializing;
-        private bool isRecognizing;
-        private bool isActive;
-        private string visibilityMode;
+        private BigBoxVoiceSearchState state;
         private Visibility userControlVisibility;
+
+
+        public bool ShowInitializing { get; set; }
+        public bool ShowInitializingFailed { get; set; }
+        public bool ShowInactive { get; set; }
+        public bool ShowActive { get; set; }
+        public bool ShowRecognizing { get; set; }
+        public string CustomInitializingImagePath { get; set; }
+        public string CustomInitializingFailedImagePath { get; set; }
+        public string CustomInactiveImagePath { get; set; }
+        public string CustomActiveImagePath { get; set; }
+        public string CustomRecognizingImagePath { get; set; }        
 
         private bool activateOnUp, activateOnDown, activateOnLeft, activateOnRight, activateOnPageUp, activateOnPageDown;
         private bool deactivateOnUp, deactivateOnDown, deactivateOnLeft, deactivateOnRight;
 
         private Uri initializingImage;
+        private Uri initializingFailedImage;
         private Uri inactiveImage;
         private Uri activeImage;
         private Uri recognizingImage;
-        private Uri recognizingAnimatedGif;
 
-        public string CustomInitializingImagePath { get; set; }
-        public string CustomInactiveImagePath { get; set; }
-        public string CustomActiveImagePath { get; set; }
-        public string CustomRecognizingImagePath { get; set; }
-        public string CustomRecognizingAnimatedGifPath { get; set; }
-
-        public async Task Initialize()
+        public Uri InitializingImage
         {
-            IsActive = false;
-            IsRecognizing = false;
+            get { return initializingImage; }
+            set
+            {
+                initializingImage = value;
+                OnPropertyChanged("InitializingImage");
+            }
+        }
 
+        public Uri InitializingFailedImage
+        {
+            get { return initializingFailedImage; }
+            set
+            {
+                initializingFailedImage = value;
+                OnPropertyChanged("InitializingFailedImage");
+            }
+        }
+
+        public Uri InactiveImage
+        {
+            get { return inactiveImage; }
+            set
+            {
+                inactiveImage = value;
+                OnPropertyChanged("InactiveImage");
+            }
+        }
+
+        public Uri ActiveImage
+        {
+            get { return activeImage; }
+            set
+            {
+                activeImage = value;
+                OnPropertyChanged("ActiveImage");
+            }
+        }
+
+        public Uri RecognizingImage
+        {
+            get { return recognizingImage; }
+            set
+            {
+                recognizingImage = value;
+                OnPropertyChanged("RecognizingImage");
+            }
+        }
+
+        public Visibility UserControlVisibility
+        {
+            get { return userControlVisibility; }
+            set
+            {
+                userControlVisibility = value;
+                OnPropertyChanged("UserControlVisibility");
+            }
+        }
+
+        public BigBoxVoiceSearchState State
+        {
+            get { return state; }
+            set
+            {
+                if (state != value)
+                {
+                    state = value;
+                    OnPropertyChanged("State");
+
+                    ManageUserControlVisibility();
+                }
+            }
+        }
+
+        private void ManageUserControlVisibility()
+        {
+            switch (State)
+            {
+                case BigBoxVoiceSearchState.None:
+                    UserControlVisibility = Visibility.Collapsed;
+                    break;
+
+                case BigBoxVoiceSearchState.Initializing:
+                    UserControlVisibility = ShowInitializing
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+
+                case BigBoxVoiceSearchState.InitializingFailed:
+                    UserControlVisibility = ShowInitializingFailed
+                                            ? Visibility.Visible
+                                            : Visibility.Collapsed;
+                    break;
+
+                case BigBoxVoiceSearchState.Inactive:
+                    UserControlVisibility = ShowInactive
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+
+                case BigBoxVoiceSearchState.Active:
+                    UserControlVisibility = ShowActive
+                                            ? Visibility.Visible
+                                            : Visibility.Collapsed;
+                    break;
+
+                case BigBoxVoiceSearchState.Recognizing:
+                    UserControlVisibility = ShowRecognizing
+                                            ? Visibility.Visible
+                                            : Visibility.Collapsed;
+                    break;
+
+                default:
+                    UserControlVisibility = Visibility.Collapsed;
+                    break;
+            }
+        }
+
+        public void Initialize()
+        {
+            try
+            {
+                State = BigBoxVoiceSearchState.Initializing;
+
+                BackgroundWorker backgroundWorker = new BackgroundWorker();
+                backgroundWorker.DoWork += BackgroundWorker_DoWork;
+                backgroundWorker.RunWorkerAsync();
+            }
+            catch (Exception ex)
+            {
+                State = BigBoxVoiceSearchState.InitializingFailed;
+                LogHelper.LogException(ex, "MainWindowViewModel.Initialize");
+            }
+        }
+
+        private async void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            await InitializeInBackground();
+        }
+
+        private async Task InitializeInBackground()
+        {
             InitializeImages();
 
             voiceSearcher = new VoiceSearcher(RecognizeCompleted);
-            await voiceSearcher.Initialize();
+            if (await voiceSearcher.Initialize())
+            {
+                State = BigBoxVoiceSearchState.Inactive;
+            }
+            else
+            {
+                State = BigBoxVoiceSearchState.InitializingFailed;
+            }
         }
 
         private void InitializeImages()
         {
             if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInitializingImagePath)))
             {
-                initializingImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInitializingImagePath));
+                InitializingImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInitializingImagePath));
             }
             else if (File.Exists(DirectoryInfoHelper.Instance.InitializingImagePath))
             {
-                initializingImage = new Uri(DirectoryInfoHelper.Instance.InitializingImagePath);
+                InitializingImage = new Uri(DirectoryInfoHelper.Instance.InitializingImagePath);
+            }
+
+            if(File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInitializingFailedImagePath)))
+            {
+                InitializingFailedImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInitializingFailedImagePath));
+            }
+            else if (File.Exists(DirectoryInfoHelper.Instance.InitializingFailedImagePath))
+            {
+                InitializingFailedImage = new Uri(DirectoryInfoHelper.Instance.InitializingFailedImagePath);
             }
 
             if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInactiveImagePath)))
             {
-                inactiveImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInactiveImagePath));
+                InactiveImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomInactiveImagePath));
             }
             else if (File.Exists(DirectoryInfoHelper.Instance.InactiveImagePath))
             {
-                inactiveImage = new Uri(DirectoryInfoHelper.Instance.InactiveImagePath);
+                InactiveImage = new Uri(DirectoryInfoHelper.Instance.InactiveImagePath);
             }
 
             if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomActiveImagePath)))
             {
-                activeImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomActiveImagePath));
+                ActiveImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomActiveImagePath));
             }
             else if (File.Exists(DirectoryInfoHelper.Instance.ActiveImagePath))
             {
-                activeImage = new Uri(DirectoryInfoHelper.Instance.ActiveImagePath);
+                ActiveImage = new Uri(DirectoryInfoHelper.Instance.ActiveImagePath);
             }
 
             if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomRecognizingImagePath)))
             {
-                recognizingImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomRecognizingImagePath));
+                RecognizingImage = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomRecognizingImagePath));
             }
             else if (File.Exists(DirectoryInfoHelper.Instance.RecognizingImagePath))
             {
-                recognizingImage = new Uri(DirectoryInfoHelper.Instance.RecognizingImagePath);
-            }
-
-            if (File.Exists(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomRecognizingAnimatedGifPath)))
-            {
-                recognizingAnimatedGif = new Uri(Path.Combine(DirectoryInfoHelper.Instance.ApplicationPath, CustomRecognizingAnimatedGifPath));
-            }
-            else if (File.Exists(DirectoryInfoHelper.Instance.RecognizingGifPath))
-            {
-                recognizingAnimatedGif = new Uri(DirectoryInfoHelper.Instance.RecognizingGifPath);
-            }
-
-            ForegroundImage = inactiveImage;
-        }
-
-
-        private Uri foregroundImage;
-        public Uri ForegroundImage
-        {
-            get { return foregroundImage; }
-            set
-            {
-                foregroundImage = value;
-                OnPropertyChanged("ForegroundImage");
-            }
-        }
-
-        private Uri backgroundImage;
-        public Uri BackgroundImage
-        {
-            get { return backgroundImage; }
-            set
-            {
-                backgroundImage = value;
-                OnPropertyChanged("BackgroundImage");
+                RecognizingImage = new Uri(DirectoryInfoHelper.Instance.RecognizingImagePath);
             }
         }
 
@@ -149,45 +273,28 @@ namespace BigBoxVoiceSearch.ViewModel
             deactivateOnRight = activateOnLeft;
         }
 
-        public string VisibilityMode
-        {
-            get { return visibilityMode; }
-            set
-            {
-                if (visibilityMode != value)
-                {
-                    ManageVisibility(value, IsActive, IsRecognizing);
-                }
-
-                visibilityMode = value;
-                OnPropertyChanged("VisibilityMode");
-            }
-        }
-
         public void DoVoiceSearch()
         {
             if (!voiceSearcher.IsInitialized)
             {
-                IsRecognizing = false;
-                IsActive = false;
                 return;
             }
 
-            IsRecognizing = true;
+            State = BigBoxVoiceSearchState.Recognizing;
             voiceSearcher.DoVoiceSearch();
         }
 
         public bool DoUp(bool held)
         {
-            if (activateOnUp && !IsActive)
+            if (activateOnUp && State != BigBoxVoiceSearchState.Active)
             {
-                IsActive = true;
+                State = BigBoxVoiceSearchState.Active;
                 return true;
             }
 
-            if (deactivateOnUp && IsActive)
+            if (deactivateOnUp && State == BigBoxVoiceSearchState.Active)
             {
-                IsActive = false;
+                State = BigBoxVoiceSearchState.Inactive;
                 return true;
             }
 
@@ -196,15 +303,15 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoDown(bool held)
         {
-            if (activateOnDown && !IsActive)
+            if (activateOnDown && State != BigBoxVoiceSearchState.Active)
             {
-                IsActive = true;
+                State = BigBoxVoiceSearchState.Active;
                 return true;
             }
 
-            if (deactivateOnDown && IsActive)
+            if (deactivateOnDown && State == BigBoxVoiceSearchState.Active)
             {
-                IsActive = false;
+                State = BigBoxVoiceSearchState.Inactive;
                 return true;
             }
 
@@ -213,15 +320,15 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoLeft(bool held)
         {
-            if (activateOnLeft && !IsActive)
+            if (activateOnLeft && State != BigBoxVoiceSearchState.Active)
             {
-                IsActive = true;
+                State = BigBoxVoiceSearchState.Active;
                 return true;
             }
 
-            if (deactivateOnLeft && IsActive)
+            if (deactivateOnLeft && State == BigBoxVoiceSearchState.Active)
             {
-                IsActive = false;
+                State = BigBoxVoiceSearchState.Inactive;
                 return true;
             }
 
@@ -231,15 +338,15 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoRight(bool held)
         {
-            if (activateOnRight && !IsActive)
+            if (activateOnRight && State != BigBoxVoiceSearchState.Active)
             {
-                IsActive = true;
+                State = BigBoxVoiceSearchState.Active;
                 return true;
             }
 
-            if (deactivateOnRight && IsActive)
+            if (deactivateOnRight && State == BigBoxVoiceSearchState.Active)
             {
-                IsActive = false;
+                State = BigBoxVoiceSearchState.Inactive;
                 return true;
             }
 
@@ -249,7 +356,7 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoEnter()
         {
-            if (IsActive)
+            if (State == BigBoxVoiceSearchState.Active)
             {
                 DoVoiceSearch();
                 return true;
@@ -260,16 +367,16 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoEscape()
         {
-            if (IsRecognizing)
+            if (State == BigBoxVoiceSearchState.Recognizing)
             {
                 voiceSearcher.TryCancelSearch();
-                IsRecognizing = false;
+                State = BigBoxVoiceSearchState.Inactive;
                 return true;
             }
 
-            if (IsActive)
+            if (State == BigBoxVoiceSearchState.Active)
             {
-                IsActive = false;
+                State = BigBoxVoiceSearchState.Inactive;
                 return true;
             }
 
@@ -298,56 +405,9 @@ namespace BigBoxVoiceSearch.ViewModel
             return false;
         }
 
-        public bool IsInitializing
-        {
-            get { return isInitializing; }
-            set
-            {
-                if (isInitializing != value)
-                {
-                    isInitializing = value;
-                    OnPropertyChanged("IsInitializing");
-                }
-            }
-        }
-
-        public bool IsRecognizing
-        {
-            get { return isRecognizing; }
-            set
-            {
-                if (isRecognizing != value)
-                {
-                    ManageVisibility(VisibilityMode, IsActive, value);
-                    ManageImages(value, IsActive);
-                }
-
-                isRecognizing = value;
-                OnPropertyChanged("IsRecognizing");
-            }
-        }
-
-        public bool IsActive
-        {
-            get { return isActive; }
-            set
-            {
-                if (isActive != value)
-                {
-                    ManageVisibility(VisibilityMode, value, IsRecognizing);
-                    ManageImages(IsRecognizing, value);
-                }
-
-                isActive = value;
-                OnPropertyChanged("IsActive");
-            }
-        }
-
         private void RecognizeCompleted(SpeechRecognizerResult result)
         {
-            IsRecognizing = false;
-            IsActive = false;
-
+            State = BigBoxVoiceSearchState.Inactive;
             if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
             {
                 return;
@@ -361,65 +421,6 @@ namespace BigBoxVoiceSearch.ViewModel
 
             RecognizedPhrase recognizedPhrase = recognizedPhrases.FirstOrDefault();
             PluginHelper.BigBoxMainViewModel.Search(recognizedPhrase.Phrase);
-        }
-
-        public Visibility UserControlVisibility
-        {
-            get { return userControlVisibility; }
-            set
-            {
-                if (userControlVisibility != value)
-                {
-                    userControlVisibility = value;
-                    OnPropertyChanged("UserControlVisibility");
-                }
-            }
-        }
-
-        private void ManageImages(bool _isRecognizing, bool _isActive)
-        {
-            if (_isRecognizing)
-            {
-                ForegroundImage = recognizingImage;
-            }
-            else if (_isActive)
-            {
-                ForegroundImage = activeImage;
-            }
-            else
-            {
-                ForegroundImage = inactiveImage;
-            }
-        }
-
-        private void ManageVisibility(string _visibilityMode, bool _isActive, bool _isRecognizing)
-        {
-            switch (_visibilityMode)
-            {
-                case BigBoxVoiceSearchVisibilityMode.Never:
-                    UserControlVisibility = Visibility.Collapsed;
-                    break;
-
-                case BigBoxVoiceSearchVisibilityMode.Always:
-                    UserControlVisibility = Visibility.Visible;
-                    break;
-
-                case BigBoxVoiceSearchVisibilityMode.Active:
-                    UserControlVisibility = _isActive
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-
-                case BigBoxVoiceSearchVisibilityMode.Recognizing:
-                    UserControlVisibility = _isRecognizing
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-
-                default:
-                    UserControlVisibility = Visibility.Collapsed;
-                    break;
-            }
         }
     }
 }
