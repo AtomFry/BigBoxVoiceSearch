@@ -114,7 +114,6 @@ The ShowRecognizing property accepts the values "true" or "false" to indicates w
 ## Default image paths 
 If no custom image paths are specified on the user control, the plugin will look for images with the following path to display in various states: 
 
-|--------------------|-----------------------------------------------------------------------------|
 | State              | Default image path                                                          |
 |--------------------|-----------------------------------------------------------------------------|
 | Initializing       | ..\LaunchBox\Plugins\BigBoxVoiceSearch\Media\Default\Initializing.png       |
@@ -122,7 +121,6 @@ If no custom image paths are specified on the user control, the plugin will look
 | Inactive           | ..\LaunchBox\Plugins\BigBoxVoiceSearch\Media\Default\Inactive.png           |
 | Active             | ..\LaunchBox\Plugins\BigBoxVoiceSearch\Media\Default\Active.png             |
 | Recognizing        | ..\LaunchBox\Plugins\BigBoxVoiceSearch\Media\Default\Recognizing.png        |
-|--------------------|-----------------------------------------------------------------------------|
 
 ## Custom image paths 
 Images displayed by the user control can be overridden or customized by specifying a relative path to the image file on the user control with the following properties: 
