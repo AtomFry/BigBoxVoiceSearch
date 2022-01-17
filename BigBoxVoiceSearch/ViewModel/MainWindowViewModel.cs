@@ -286,16 +286,15 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoUp(bool held)
         {
-            if (activateOnUp && State != BigBoxVoiceSearchState.Active)
+            if (activateOnUp && State == BigBoxVoiceSearchState.Inactive)
             {
                 State = BigBoxVoiceSearchState.Active;
                 return true;
             }
 
-            if (deactivateOnUp && State == BigBoxVoiceSearchState.Active)
+            if (!activateOnUp && State == BigBoxVoiceSearchState.Active)
             {
                 State = BigBoxVoiceSearchState.Inactive;
-                return true;
             }
 
             return false;
@@ -303,16 +302,15 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoDown(bool held)
         {
-            if (activateOnDown && State != BigBoxVoiceSearchState.Active)
+            if (activateOnDown && State == BigBoxVoiceSearchState.Inactive)
             {
                 State = BigBoxVoiceSearchState.Active;
                 return true;
             }
 
-            if (deactivateOnDown && State == BigBoxVoiceSearchState.Active)
+            if (!activateOnDown && State == BigBoxVoiceSearchState.Active)
             {
                 State = BigBoxVoiceSearchState.Inactive;
-                return true;
             }
 
             return false;
@@ -320,16 +318,15 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoLeft(bool held)
         {
-            if (activateOnLeft && State != BigBoxVoiceSearchState.Active)
+            if (activateOnLeft && State == BigBoxVoiceSearchState.Inactive)
             {
                 State = BigBoxVoiceSearchState.Active;
                 return true;
             }
 
-            if (deactivateOnLeft && State == BigBoxVoiceSearchState.Active)
+            if (!activateOnLeft && State == BigBoxVoiceSearchState.Active)
             {
-                State = BigBoxVoiceSearchState.Inactive;
-                return true;
+                State = BigBoxVoiceSearchState.Inactive;                
             }
 
             return false;
@@ -338,16 +335,15 @@ namespace BigBoxVoiceSearch.ViewModel
 
         public bool DoRight(bool held)
         {
-            if (activateOnRight && State != BigBoxVoiceSearchState.Active)
+            if (activateOnRight && State == BigBoxVoiceSearchState.Inactive)
             {
                 State = BigBoxVoiceSearchState.Active;
                 return true;
             }
 
-            if (deactivateOnRight && State == BigBoxVoiceSearchState.Active)
+            if (!activateOnRight && State == BigBoxVoiceSearchState.Active)
             {
                 State = BigBoxVoiceSearchState.Inactive;
-                return true;
             }
 
             return false;
@@ -377,7 +373,6 @@ namespace BigBoxVoiceSearch.ViewModel
             if (State == BigBoxVoiceSearchState.Active)
             {
                 State = BigBoxVoiceSearchState.Inactive;
-                return true;
             }
 
             return false;
