@@ -20,8 +20,7 @@
     </UserControl.Resources>
     <Canvas Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
             Width="{Binding ActualWidth, ElementName=MainWindowUserControl}"
-            Height="{Binding ActualHeight, ElementName=MainWindowUserControl}"
-            Visibility="{Binding UserControlVisibility}">
+            Height="{Binding ActualHeight, ElementName=MainWindowUserControl}">
         <Grid Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"                       
               Width="{Binding ActualWidth, ElementName=MainWindowUserControl}"
               Height="{Binding ActualHeight, ElementName=MainWindowUserControl}">
@@ -29,36 +28,61 @@
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch" 
                    Stretch="Uniform"                    
-                   Source="{Binding InitializingImage}"
-                   Visibility="{Binding State, Converter={StaticResource IsInitializing}}">
+                   Source="{Binding InitializingImage}">
+                <Image.Visibility>
+                    <MultiBinding Converter="{StaticResource IsInitializing}">
+                        <Binding Path="State"/>
+                        <Binding Path="ShowInitializing"/>
+                    </MultiBinding>
+                </Image.Visibility>
             </Image>
             <Image RenderOptions.BitmapScalingMode="HighQuality" 
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch" 
                    Stretch="Uniform"                    
-                   Source="{Binding InitializingFailedImage}"
-                   Visibility="{Binding State, Converter={StaticResource IsInitializingFailed}}">
+                   Source="{Binding InitializingFailedImage}">
+                <Image.Visibility>
+                    <MultiBinding Converter="{StaticResource IsInitializingFailed}">
+                        <Binding Path="State"/>
+                        <Binding Path="ShowInitializingFailed"/>
+                    </MultiBinding>
+                </Image.Visibility>
             </Image>
             <Image RenderOptions.BitmapScalingMode="HighQuality" 
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch" 
                    Stretch="Uniform"                    
-                   Source="{Binding InactiveImage}"
-                   Visibility="{Binding State, Converter={StaticResource IsInactive}}">
+                   Source="{Binding InactiveImage}">
+                <Image.Visibility>
+                    <MultiBinding Converter="{StaticResource IsInactive}">
+                        <Binding Path="State"/>
+                        <Binding Path="ShowInactive"/>
+                    </MultiBinding>
+                </Image.Visibility>
             </Image>
             <Image RenderOptions.BitmapScalingMode="HighQuality" 
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch" 
                    Stretch="Uniform"                    
-                   Source="{Binding ActiveImage}"
-                   Visibility="{Binding State, Converter={StaticResource IsActive}}">
+                   Source="{Binding ActiveImage}">
+                <Image.Visibility>
+                    <MultiBinding Converter="{StaticResource IsActive}">
+                        <Binding Path="State"/>
+                        <Binding Path="ShowActive"/>
+                    </MultiBinding>
+                </Image.Visibility>
             </Image>
             <Image RenderOptions.BitmapScalingMode="HighQuality" 
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch" 
                    Stretch="Uniform"                    
-                   Source="{Binding RecognizingImage}"
-                   Visibility="{Binding State, Converter={StaticResource IsRecognizing}}">
+                   Source="{Binding RecognizingImage}">
+                <Image.Visibility>
+                    <MultiBinding Converter="{StaticResource IsRecognizing}">
+                        <Binding Path="State"/>
+                        <Binding Path="ShowRecognizing"/>
+                    </MultiBinding>
+                </Image.Visibility>
             </Image>
         </Grid>
     </Canvas>

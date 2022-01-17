@@ -10,19 +10,36 @@ namespace BigBoxVoiceSearch.VoiceSearch
 {
     public delegate void RecognitionCompletedDelegate(SpeechRecognizerResult speechRecognizerResult);
 
-    public class VoiceSearcher
+    public sealed class VoiceSearcher
     {
-        private readonly RecognitionCompletedDelegate recognitionCompletedDelegate;
+        private static readonly VoiceSearcher instance = new VoiceSearcher();
+
+        // Explicit static constructor to tell C# compiler
+        // not to mark type as beforefieldinit
+        static VoiceSearcher()
+        {
+        }
+
+        private VoiceSearcher()
+        {
+            IsInitialized = false;
+        }
+
+        public static VoiceSearcher Instance
+        {
+            get
+            {
+                return instance;
+            }
+        }
+
+        public RecognitionCompletedDelegate RecognitionCompletedDelegate { get; set; }
+
         private SpeechRecognitionEngine recognizer;
         private SpeechRecognizerResult speechRecognizerResult;
 
         public bool IsInitialized { get; private set; }
 
-        public VoiceSearcher(RecognitionCompletedDelegate _recognitionCompletedDelegate)
-        {
-            IsInitialized = false;
-            recognitionCompletedDelegate = _recognitionCompletedDelegate ?? throw new ArgumentNullException(nameof(_recognitionCompletedDelegate));
-        }
 
         public async Task<bool> Initialize()
         {
@@ -33,7 +50,7 @@ namespace BigBoxVoiceSearch.VoiceSearch
                     List<string> gameTitlePhrases = GameTitleGrammarBuilder.GetGameTitleGrammar();
 
                     Choices choices = new Choices();
-                    choices.Add(gameTitlePhrases.Distinct().ToArray());                    
+                    choices.Add(gameTitlePhrases.Distinct().ToArray());
 
                     GrammarBuilder grammarBuilder = new GrammarBuilder();
                     grammarBuilder.Append(choices);
@@ -44,6 +61,7 @@ namespace BigBoxVoiceSearch.VoiceSearch
                     {
                         InitialSilenceTimeout = TimeSpan.FromSeconds(BigBoxVoiceSearchSettingsDataProvider.Instance.BigBoxVoiceSearchSettings.VoiceSearchTimeoutInSeconds)
                     };
+
                     recognizer.RecognizeCompleted += Recognizer_RecognizeCompleted;
                     recognizer.LoadGrammarAsync(grammar);
                     recognizer.SpeechHypothesized += Recognizer_SpeechHypothesized;
@@ -85,7 +103,6 @@ namespace BigBoxVoiceSearch.VoiceSearch
             }
             finally
             {
-
             }
         }
 
@@ -125,7 +142,7 @@ namespace BigBoxVoiceSearch.VoiceSearch
                 speechRecognizerResult.ErrorMessage = "Voice recognition did not hear anything";
             }
 
-            recognitionCompletedDelegate(speechRecognizerResult);
+            RecognitionCompletedDelegate(speechRecognizerResult);
         }
     }
 }
