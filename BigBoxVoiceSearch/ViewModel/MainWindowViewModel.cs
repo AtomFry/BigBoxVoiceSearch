@@ -375,8 +375,29 @@ namespace BigBoxVoiceSearch.ViewModel
                 return;
             }
 
+            // todo: delete test log code 
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.AppendLine("Search complete");
+            foreach (RecognizedPhrase rp in recognizedPhrases)
+            {
+                sb.AppendLine($"({rp.Confidence}) - {rp.Phrase}");
+            }
+            LogHelper.Log(sb.ToString());
+
             RecognizedPhrase recognizedPhrase = recognizedPhrases.FirstOrDefault();
-            PluginHelper.BigBoxMainViewModel.Search(recognizedPhrase.Phrase);
+
+            // get highest confidence 
+            // compute min acceptable confidence = 0.85 * highestConfidence 
+            // find longest phrase between max and min confidence 
+            float minConfidence = (float)(0.85 * recognizedPhrase.Confidence);
+
+            IOrderedEnumerable<RecognizedPhrase> acceptablePhrases = result.RecognizedPhrases
+                .Where(rp => rp.Confidence >= minConfidence)
+                .OrderByDescending(p => p.Phrase.Length);
+
+            RecognizedPhrase acceptedPhrase = acceptablePhrases.FirstOrDefault();
+
+            PluginHelper.BigBoxMainViewModel.Search(acceptedPhrase.Phrase);
         }
     }
 }

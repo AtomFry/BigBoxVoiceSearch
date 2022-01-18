@@ -39,21 +39,6 @@ namespace BigBoxVoiceSearch.VoiceSearch
 
             foreach (GameTitleGrammar gameTitleGrammar in gameTitleGrammarBuilder.GameTitleGrammars)
             {
-                if (!string.IsNullOrWhiteSpace(gameTitleGrammar.Title))
-                {
-                    gameTitlePhrases.Add(gameTitleGrammar.Title);
-                }
-
-                if (!string.IsNullOrWhiteSpace(gameTitleGrammar.MainTitle))
-                {
-                    gameTitlePhrases.Add(gameTitleGrammar.MainTitle);
-                }
-
-                if (!string.IsNullOrWhiteSpace(gameTitleGrammar.Subtitle))
-                {
-                    gameTitlePhrases.Add(gameTitleGrammar.Subtitle);
-                }
-
                 for (int i = 0; i < gameTitleGrammar.TitleWords.Count; i++)
                 {
                     StringBuilder sb = new StringBuilder();
