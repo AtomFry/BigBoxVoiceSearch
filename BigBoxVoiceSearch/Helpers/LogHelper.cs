@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BigBoxVoiceSearch.DataAccess;
+using System;
 using System.IO;
 
 namespace BigBoxVoiceSearch.Helpers
@@ -16,10 +17,13 @@ namespace BigBoxVoiceSearch.Helpers
 
             using (StreamWriter w = File.AppendText(LogFile))
             {
-                w.Write("\r\nLog Entry : ");
-                w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-                w.WriteLine($"  :{logMessage}");
-                w.WriteLine("-------------------------------");
+                if (BigBoxVoiceSearchSettingsDataProvider.Instance.BigBoxVoiceSearchSettings.EnableDebugLog)
+                {
+                    w.Write("\r\nLog Entry : ");
+                    w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+                    w.WriteLine($"  :{logMessage}");
+                    w.WriteLine("-------------------------------");
+                }
             }
         }
 
@@ -27,13 +31,16 @@ namespace BigBoxVoiceSearch.Helpers
         {
             if (ex != null)
             {
-                Log($"An exception occurred while attempting to {context}");
-                Log($"Exception message: {ex?.Message ?? "null"}");
-                Log($"Exception stack: {ex?.StackTrace ?? "null"}");
-
-                if (ex.InnerException != null)
+                if (BigBoxVoiceSearchSettingsDataProvider.Instance.BigBoxVoiceSearchSettings.EnableErrorLog)
                 {
-                    LogException(ex.InnerException, "Inner Exception");
+                    Log($"An exception occurred while attempting to {context}");
+                    Log($"Exception message: {ex?.Message ?? "null"}");
+                    Log($"Exception stack: {ex?.StackTrace ?? "null"}");
+
+                    if (ex.InnerException != null)
+                    {
+                        LogException(ex.InnerException, "Inner Exception");
+                    }
                 }
             }
         }

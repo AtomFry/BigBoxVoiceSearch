@@ -375,7 +375,6 @@ namespace BigBoxVoiceSearch.ViewModel
                 return;
             }
 
-            // todo: delete test log code 
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.AppendLine("Search complete");
             foreach (RecognizedPhrase rp in recognizedPhrases)
@@ -397,7 +396,10 @@ namespace BigBoxVoiceSearch.ViewModel
 
             RecognizedPhrase acceptedPhrase = acceptablePhrases.FirstOrDefault();
 
-            PluginHelper.BigBoxMainViewModel.Search(acceptedPhrase.Phrase);
+            if (!string.IsNullOrWhiteSpace(acceptedPhrase?.Phrase))
+            {
+                PluginHelper.BigBoxMainViewModel.Search(acceptedPhrase.Phrase);
+            }
         }
     }
 }

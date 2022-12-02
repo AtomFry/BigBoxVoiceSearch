@@ -24,7 +24,9 @@ namespace BigBoxVoiceSearch.DataAccess
 
                 BigBoxVoiceSearchSettings bigBoxVoiceSearchSettings = new BigBoxVoiceSearchSettings()
                 {
-                    VoiceSearchTimeoutInSeconds = 5
+                    VoiceSearchTimeoutInSeconds = 5,
+                    EnableDebugLog = false,
+                    EnableErrorLog = true
                 };
 
                 // save the file 

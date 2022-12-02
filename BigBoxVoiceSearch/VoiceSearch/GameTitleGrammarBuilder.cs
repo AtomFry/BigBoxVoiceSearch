@@ -19,7 +19,11 @@ namespace BigBoxVoiceSearch.VoiceSearch
         public GameTitleGrammarBuilder(string _title)
         {
             GameTitleGrammars = new List<GameTitleGrammar>();
-            string[] gameTitles = _title.Split(ForwardSlashSplitter, StringSplitOptions.RemoveEmptyEntries);
+
+            // remove double quotes - they cannot be present in the voice recognition grammar
+            string cleanTitle = _title.Replace("\"", " ");
+
+            string[] gameTitles = cleanTitle.Split(ForwardSlashSplitter, StringSplitOptions.RemoveEmptyEntries);
             foreach (string gameTitle in gameTitles)
             {
                 GameTitleGrammars.Add(new GameTitleGrammar(gameTitle.Trim()));
